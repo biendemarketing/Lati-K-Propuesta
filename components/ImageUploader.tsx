@@ -101,7 +101,7 @@ const ImageUploader = ({ path, currentImageUrl }: { path: string; currentImageUr
             </div>
         </div>
         {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
             {isGeneratorOpen && (
                 <ImageGeneratorModal 
                     path={path} 

@@ -32,7 +32,7 @@ type ListItemProps = {
 const ListItem = ({ icon, text }: ListItemProps) => (
   <motion.li className="flex items-center text-lg" variants={itemVariants}>
     <span className="text-[var(--color-primary)] mr-4 print:mr-2">{icon}</span>
-    <span>{text}</span>
+    {typeof text === 'string' && <span>{text}</span>}
   </motion.li>
 );
 
@@ -202,7 +202,7 @@ const IncludedServicesSection = () => {
            )}
         </motion.div>
       </div>
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isModalOpen && <RequestChangesModal closeModal={() => setIsModalOpen(false)} onSubmit={addComment} />}
       </AnimatePresence>
     </motion.section>

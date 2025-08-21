@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useData } from '../contexts/DataContext';
@@ -155,7 +156,7 @@ const MobileMenu = ({ isOpen, closeMenu, navLinks, scrollToSection }: { isOpen: 
     };
     
     return (
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
         {isOpen && (
             <motion.div
                 initial={{ opacity: 0 }}

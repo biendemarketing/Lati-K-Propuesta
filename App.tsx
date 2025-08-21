@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Hero from './components/Hero';
 import ProposalSection from './components/ProposalSection';
@@ -80,10 +80,10 @@ const App = () => {
     `;
   }, [data, isLandingPage]);
 
-  const handleOpenAdminPanel = () => {
+  const handleOpenAdminPanel = useCallback(() => {
     startEditing(); 
     setIsAdminPanelOpen(true);
-  };
+  }, [startEditing]);
   
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -93,8 +93,7 @@ const App = () => {
       const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
       window.history.replaceState({}, '', newUrl);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAuthenticated, handleOpenAdminPanel]);
 
   const handleCreateProposal = async () => {
     const proposalName = prompt("Introduce el nombre para la nueva propuesta (ej: nombre del cliente):");
@@ -239,7 +238,7 @@ const App = () => {
         </div>
       )}
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isLoginModalOpen && (
           <LoginModal 
             closeModal={() => setIsLoginModalOpen(false)} 
@@ -247,7 +246,7 @@ const App = () => {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isAdminPanelOpen && (
           <AdminPanel 
             closePanel={() => setIsAdminPanelOpen(false)} 
@@ -255,7 +254,7 @@ const App = () => {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isProposalListModalOpen && (
           <ProposalListModal closeModal={() => setIsProposalListModalOpen(false)} />
         )}
