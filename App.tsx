@@ -15,6 +15,7 @@ import ProposalListModal from './components/ProposalListModal';
 import { useAuth } from './contexts/AuthContext';
 import { useData } from './contexts/DataContext';
 import { Edit, LogIn, Loader, Plus, List } from 'lucide-react';
+import LandingPage from './components/LandingPage';
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -22,6 +23,12 @@ const App = () => {
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isProposalListModalOpen, setIsProposalListModalOpen] = useState(false);
+  const [isLandingPage, setIsLandingPage] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setIsLandingPage(params.get('page') === 'landing');
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -30,6 +37,10 @@ const App = () => {
   }, [isAuthenticated]);
 
   useEffect(() => {
+    if (isLandingPage) {
+        document.title = 'Lati K Publicidad | Eventos Inolvidables';
+        return;
+    }
     if (data?.hero?.clientName) {
       document.title = `Lati K | Propuesta para ${data.hero.clientName}`;
     } else {
@@ -43,8 +54,6 @@ const App = () => {
       primaryGradientTo: '#facc15',
     };
 
-    // Use the theme from data if it's a valid theme object, otherwise fallback to the default.
-    // This robustly handles cases where `data.theme` is missing, null, or an incomplete object.
     const theme = (data?.theme && data.theme.primary) ? data.theme : defaultTheme;
 
     const styleId = 'dynamic-theme-style';
@@ -61,7 +70,7 @@ const App = () => {
         --color-primary-gradient-to: ${theme.primaryGradientTo};
       }
     `;
-  }, [data]);
+  }, [data, isLandingPage]);
 
   const handleOpenAdminPanel = () => {
     startEditing(); 
@@ -72,7 +81,6 @@ const App = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('edit') === 'true' && isAuthenticated) {
       handleOpenAdminPanel();
-      // Clean up the URL to avoid re-triggering on refresh
       params.delete('edit');
       const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
       window.history.replaceState({}, '', newUrl);
@@ -100,9 +108,13 @@ const App = () => {
     return (
       <div className="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center">
         <Loader className="animate-spin text-[var(--color-primary)]" size={48} />
-        <p className="text-xl font-semibold mt-4">Cargando Propuesta...</p>
+        <p className="text-xl font-semibold mt-4">Cargando...</p>
       </div>
     );
+  }
+  
+  if (isLandingPage) {
+      return <LandingPage />;
   }
 
   if (!data) {

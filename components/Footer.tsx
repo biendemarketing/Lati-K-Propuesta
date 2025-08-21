@@ -43,6 +43,13 @@ const Footer = () => {
             <p className="text-slate-300">{footer.address}</p>
           </div>
         </div>
+
+        <div className="text-center mt-12">
+            <a href="/?page=landing" className="inline-block bg-slate-800/50 border border-slate-700 text-slate-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] font-semibold py-2 px-6 rounded-full transition-all duration-300">
+                Conoce Más Sobre Nosotros
+            </a>
+        </div>
+
         <div className="text-center text-slate-500 mt-12 pt-8 border-t border-slate-800">
           <p>{footer.copyright.replace('{year}', new Date().getFullYear().toString())}</p>
         </div>
