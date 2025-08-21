@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader, Sparkles, Check, UploadCloud, RotateCw } from 'lucide-react';
+import { X, Loader, Sparkles, Check, RotateCw } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
@@ -38,19 +38,20 @@ const loadingMessages = [
   "Finalizing the masterpiece..."
 ];
 
+type Status = 'idle' | 'generating' | 'success' | 'error' | 'uploading';
+
 const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: () => void }) => {
   const { updateDraftData } = useData();
   const [prompt, setPrompt] = useState('');
   const [aspectRatio, setAspectRatio] = useState('16:9');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState('');
+  const [status, setStatus] = useState<Status>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
 
   useEffect(() => {
     let interval: number;
-    if (isGenerating) {
+    if (status === 'generating') {
       interval = window.setInterval(() => {
         setLoadingMessage(prev => {
           const currentIndex = loadingMessages.indexOf(prev);
@@ -60,21 +61,18 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
       }, 2500);
     }
     return () => clearInterval(interval);
-  }, [isGenerating]);
+  }, [status]);
 
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      setError("Please enter a prompt.");
+      setErrorMessage("Please enter a prompt.");
+      setStatus('error');
       return;
     }
-    if (!API_KEY) {
-      console.error("Gemini API key is not configured. Image generation will not work.");
-      setError("Gemini API key is not configured.");
-      return;
-    }
-    setIsGenerating(true);
-    setError('');
+    
+    setStatus('generating');
+    setErrorMessage('');
     setGeneratedImage(null);
     setLoadingMessage(loadingMessages[0]);
 
@@ -88,25 +86,25 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
           aspectRatio: aspectRatio as "1:1" | "3:4" | "4:3" | "9:16" | "16:9",
         },
       });
-      const base64ImageBytes = response.generatedImages[0]?.image?.imageBytes;
+      const base64ImageBytes = response?.generatedImages?.[0]?.image?.imageBytes;
       if (!base64ImageBytes) {
-          throw new Error("API did not return an image.");
+          throw new Error("The API did not return an image. Your prompt might have been blocked for safety reasons.");
       }
       setGeneratedImage(base64ImageBytes);
+      setStatus('success');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-      console.error('Error generating image:', errorMessage);
-      setError(`Failed to generate image: ${errorMessage}`);
-    } finally {
-      setIsGenerating(false);
+      const message = err instanceof Error ? err.message : "An unknown error occurred.";
+      console.error('Error generating image:', err);
+      setErrorMessage(`Failed to generate image: ${message}`);
+      setStatus('error');
     }
   };
 
   const handleAccept = async () => {
     if (!generatedImage) return;
 
-    setIsUploading(true);
-    setError('');
+    setStatus('uploading');
+    setErrorMessage('');
     try {
       const file = base64StringToFile(generatedImage, `ai-generated-${Date.now()}.jpg`);
       const filePath = `public/${file.name}`;
@@ -123,18 +121,20 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
       updateDraftData(path, data.publicUrl);
       closeModal();
     } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-        console.error('Error uploading generated image:', errorMessage);
-        setError(`Failed to save image: ${errorMessage}`);
-    } finally {
-        setIsUploading(false);
+        const message = err instanceof Error ? err.message : "An unknown error occurred.";
+        console.error('Error uploading generated image:', message);
+        setErrorMessage(`Failed to save image: ${message}`);
+        setStatus('error');
     }
   };
 
   const handleRetry = () => {
+    setStatus('idle');
+    setErrorMessage('');
     setGeneratedImage(null);
-    setError('');
   };
+
+  const isBusy = status === 'generating' || status === 'uploading';
 
   return (
     <motion.div
@@ -142,7 +142,7 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onClick={closeModal}
+      onClick={isBusy ? undefined : closeModal}
     >
       <motion.div 
         className="w-full max-w-2xl bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 relative flex flex-col gap-6"
@@ -159,23 +159,25 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
                 </h2>
                 <p className="text-sm text-slate-400 mt-1">Describe the image you want to create.</p>
             </div>
-            <button onClick={closeModal} className="p-2 rounded-full text-slate-400 hover:bg-slate-700 hover:text-slate-100 transition-colors">
+            <button onClick={isBusy ? undefined : closeModal} className="p-2 rounded-full text-slate-400 hover:bg-slate-700 hover:text-slate-100 transition-colors disabled:opacity-50" disabled={isBusy}>
               <X size={24}/>
             </button>
         </div>
         
-        <div className="flex-grow min-h-[250px] flex items-center justify-center bg-slate-900/50 rounded-lg border border-slate-700 p-4">
+        <div className="flex-grow min-h-[300px] flex items-center justify-center bg-slate-900/50 rounded-lg border border-slate-700 p-4">
              <AnimatePresence mode="wait">
-                {isGenerating ? (
+                {status === 'generating' && (
                     <motion.div key="loading" initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} className="text-center">
                         <Loader className="animate-spin text-[var(--color-primary)] mx-auto" size={40} />
                         <p className="mt-4 font-semibold text-slate-200">{loadingMessage}</p>
                     </motion.div>
-                ) : generatedImage ? (
+                )}
+                {status === 'success' && generatedImage && (
                     <motion.div key="result" initial={{opacity: 0, scale: 0.9}} animate={{opacity: 1, scale: 1}} className="w-full">
                         <img src={`data:image/jpeg;base64,${generatedImage}`} alt="AI generated" className="max-h-[300px] w-auto mx-auto rounded-md shadow-lg" />
                     </motion.div>
-                ) : (
+                )}
+                {(status === 'idle' || status === 'error') && (
                     <motion.div key="form" initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} className="w-full flex flex-col gap-4">
                         <textarea
                             value={prompt}
@@ -199,24 +201,28 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
                         </div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+             </AnimatePresence>
         </div>
 
-        {error && <p className="text-red-400 text-center text-sm -my-2">{error}</p>}
+        {status === 'error' && <p className="text-red-400 text-center text-sm -my-2">{errorMessage}</p>}
 
         <div className="flex justify-end items-center gap-4">
-            {generatedImage && !isGenerating ? (
+            {status === 'success' ? (
                 <>
-                    <button onClick={handleRetry} disabled={isUploading} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-slate-100 font-bold py-2 px-4 rounded-lg transition-colors">
+                    <button onClick={handleRetry} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold py-2 px-4 rounded-lg transition-colors">
                         <RotateCw size={16} /> Generate Again
                     </button>
-                     <button onClick={handleAccept} disabled={isUploading} className="w-48 flex justify-center items-center gap-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-                        {isUploading ? <><Loader size={16} className="animate-spin" /><span>Saving...</span></> : <><Check size={16} /><span>Accept & Use Image</span></>}
+                     <button onClick={handleAccept} className="w-48 flex justify-center items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                        <Check size={16} /> Accept & Use Image
                     </button>
                 </>
+            ) : status === 'uploading' ? (
+                 <button disabled className="w-48 flex justify-center items-center gap-2 bg-green-600/50 text-white font-bold py-2 px-4 rounded-lg">
+                    <Loader size={16} className="animate-spin" /><span>Saving...</span>
+                </button>
             ) : (
-                <button onClick={handleGenerate} disabled={isGenerating || !prompt.trim()} className="w-48 flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)] text-slate-900 font-bold py-2 px-4 rounded-lg shadow-lg shadow-[var(--color-primary)]/30 disabled:opacity-50 transition-opacity">
-                    <Sparkles size={16} /> Generate
+                <button onClick={status === 'error' ? handleRetry : handleGenerate} disabled={status === 'generating'} className="w-48 flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)] text-slate-900 font-bold py-2 px-4 rounded-lg shadow-lg shadow-[var(--color-primary)]/30 disabled:opacity-50 transition-opacity">
+                    {status === 'error' ? <><RotateCw size={16} /> Try Again</> : <><Sparkles size={16} /> Generate</>}
                 </button>
             )}
         </div>
