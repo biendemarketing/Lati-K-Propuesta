@@ -1,11 +1,13 @@
 
 
+
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
 import { UploadCloud, Loader, Sparkles } from 'lucide-react';
 import ImageGeneratorModal from './ImageGeneratorModal';
+import { ai, aiInitializationError } from '../lib/aiClient';
 
 const ImageUploader = ({ path, currentImageUrl }: { path: string; currentImageUrl: string }) => {
   const { updateDraftData } = useData();
@@ -91,9 +93,10 @@ const ImageUploader = ({ path, currentImageUrl }: { path: string; currentImageUr
                   />
               </button>
               <button
-                  className="relative w-full h-16 border-2 border-dashed border-slate-600 rounded-md flex flex-col justify-center items-center text-slate-400 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer transition-all duration-300 group"
-                  onClick={() => setIsGeneratorOpen(true)}
-                  disabled={uploading}
+                  className="relative w-full h-16 border-2 border-dashed border-slate-600 rounded-md flex flex-col justify-center items-center text-slate-400 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-600 disabled:hover:text-slate-400"
+                  onClick={() => ai && setIsGeneratorOpen(true)}
+                  disabled={uploading || !ai}
+                  title={!ai ? `AI features disabled: ${aiInitializationError}` : "Generate image with AI"}
               >
                   <Sparkles size={24} className="group-hover:scale-125 group-hover:animate-pulse transition-transform" />
                   <span className="text-xs mt-1 font-semibold">Generar con IA</span>

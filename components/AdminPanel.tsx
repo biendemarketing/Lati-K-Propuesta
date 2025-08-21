@@ -13,7 +13,7 @@ import ImageUploader from './ImageUploader';
 import get from 'lodash.get';
 import type { ProposalComment, ProposalData } from '../lib/supabaseClient';
 import EditableFieldWithAI from './EditableFieldWithAI';
-import { ai } from '../lib/aiClient';
+import { ai, aiInitializationError } from '../lib/aiClient';
 
 /*
 -- REQUIRED SQL for this component to enable comments --
@@ -186,6 +186,10 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
   };
 
   const handleGenerateTheme = async () => {
+    if (!ai) {
+        alert(`AI features are unavailable. Reason: ${aiInitializationError}`);
+        return;
+    }
     if (!themePrompt.trim()) return;
     setIsGeneratingTheme(true);
     setGeneratedPalette(null);
@@ -327,13 +331,22 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
           </div>
           <div className="my-4 p-4 border border-slate-700 rounded-lg bg-slate-800">
                 <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Palette size={16}/> Generate Theme with AI</h4>
-                <p className="text-xs text-slate-400 mb-3">Describe a theme to generate a new color palette.</p>
-                <div className="flex gap-2">
-                    <input type="text" value={themePrompt} onChange={e => setThemePrompt(e.target.value)} placeholder="e.g., a sophisticated, nocturnal theme" className="flex-grow bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
-                    <button onClick={handleGenerateTheme} disabled={isGeneratingTheme} className="w-32 flex items-center justify-center gap-2 bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-3 rounded-lg text-sm disabled:opacity-50">
-                        {isGeneratingTheme ? <Loader size={16} className="animate-spin" /> : <><Sparkles size={16}/> Generate</>}
-                    </button>
-                </div>
+                {ai ? (
+                    <>
+                        <p className="text-xs text-slate-400 mb-3">Describe a theme to generate a new color palette.</p>
+                        <div className="flex gap-2">
+                            <input type="text" value={themePrompt} onChange={e => setThemePrompt(e.target.value)} placeholder="e.g., a sophisticated, nocturnal theme" className="flex-grow bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
+                            <button onClick={handleGenerateTheme} disabled={isGeneratingTheme} className="w-32 flex items-center justify-center gap-2 bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-3 rounded-lg text-sm disabled:opacity-50">
+                                {isGeneratingTheme ? <Loader size={16} className="animate-spin" /> : <><Sparkles size={16}/> Generate</>}
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <p className="text-xs text-yellow-400 p-2 bg-yellow-900/50 rounded-md">
+                        AI features are unavailable. <br/>
+                        <strong>Reason:</strong> {aiInitializationError}
+                    </p>
+                )}
           </div>
         </Section>
         

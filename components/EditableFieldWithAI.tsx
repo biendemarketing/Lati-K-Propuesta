@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import AIContentGeneratorModal from './AIContentGeneratorModal';
+import { ai } from '../lib/aiClient';
 
 type EditableFieldProps = {
     label: string;
@@ -67,13 +68,15 @@ const EditableFieldWithAI = ({ label, path, type = 'text', value, onChange }: Ed
         <div className="mb-4">
             <div className="flex items-center justify-between mb-1">
                 <label className="block text-xs font-medium text-slate-400">{label}</label>
-                <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-1 text-xs text-slate-400 hover:text-[var(--color-primary)] transition-colors"
-                    title="Generate with AI"
-                >
-                    <Sparkles size={14} /> Generate
-                </button>
+                {ai && (
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-[var(--color-primary)] transition-colors"
+                        title="Generate with AI"
+                    >
+                        <Sparkles size={14} /> Generate
+                    </button>
+                )}
             </div>
             <EditableField 
                 label={label}
