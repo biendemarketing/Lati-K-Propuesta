@@ -135,6 +135,16 @@ const App = () => {
           {(() => {
             const template = data.template || 'classic';
             switch (template) {
+              case 'minimalist':
+                return <IncludedServicesSection />;
+              case 'services-focused':
+                return (
+                  <>
+                    <ProposalSection />
+                    <ServicesSection />
+                    <IncludedServicesSection />
+                  </>
+                );
               case 'compact':
                 return (
                   <>

@@ -46,7 +46,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       console.error(`Error fetching data for slug "${slug}":`, error?.message);
       setData(null);
     } else {
-      setData(proposalData.data);
+      setData(proposalData.data as ProposalData);
     }
     setIsLoading(false);
   }, []);
@@ -142,7 +142,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     
     const { error } = await supabase
       .from('proposals')
-      .update({ data: draftData, updated_at: new Date().toISOString() })
+      .update({ data: draftData })
       .eq('slug', currentSlug);
 
     if (error) {
@@ -165,7 +165,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     const { error: updateError } = await supabase
       .from('proposals')
-      .update({ data: defaultData.data, updated_at: new Date().toISOString() })
+      .update({ data: defaultData.data })
       .eq('slug', currentSlug);
     
     if (updateError) {
