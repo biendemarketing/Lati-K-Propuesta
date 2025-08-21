@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Hero from './components/Hero';
 import ProposalSection from './components/ProposalSection';
@@ -18,6 +18,13 @@ const App = () => {
   const { data, isLoading, startEditing } = useData();
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    // If the user is no longer authenticated, ensure the admin panel is closed.
+    if (!isAuthenticated) {
+      setIsAdminPanelOpen(false);
+    }
+  }, [isAuthenticated]);
 
   const handleOpenAdminPanel = () => {
     startEditing(); // Prepare the draft state for editing
