@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader, Sparkles, Check, UploadCloud, RotateCw } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
 import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
 
@@ -78,7 +77,7 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
     setLoadingMessage(loadingMessages[0]);
 
     try {
-      // Initialize the Google AI client here, just before use, to prevent app crash on load.
+      const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({ apiKey: API_KEY });
 
       const response = await ai.models.generateImages({
