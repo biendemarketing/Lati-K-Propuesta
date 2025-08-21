@@ -124,21 +124,21 @@ export interface Database {
           id: number
           created_at: string
           slug: string
-          data: ProposalData
+          data: Json
           updated_at: string
         }
         Insert: {
           id?: number
           created_at?: string
           slug: string
-          data: ProposalData
+          data: Json
           updated_at?: string
         }
         Update: {
           id?: number
           created_at?: string
           slug?: string
-          data?: ProposalData
+          data?: Json
           updated_at?: string
         }
         Relationships: []
