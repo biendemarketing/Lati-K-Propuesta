@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader, Sparkles, Check } from 'lucide-react';
 
-const API_KEY = 'AIzaSyA8RPPcPdVGWC0dUmmAYp_I-LQzsJxx7LY'; // Key provided by the user.
+const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
 
 const AIContentGeneratorModal = ({ closeModal, onApplyText, contextDescription, currentValue }: { 
     closeModal: () => void; 

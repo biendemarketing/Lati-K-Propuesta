@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronDown, ChevronRight, LogOut, Plus, Trash2, Save, RotateCcw, Loader, Check, Sparkles, Palette, MessageSquare } from 'lucide-react';
@@ -61,7 +62,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.proposal_comments TO authen
 NOTIFY pgrst, 'reload schema';
 */
 
-const API_KEY = 'AIzaSyA8RPPcPdVGWC0dUmmAYp_I-LQzsJxx7LY'; // Key provided by the user.
+const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
 
 const templates = [
   { id: 'classic', name: 'Classic', description: 'The complete proposal with all sections.' },

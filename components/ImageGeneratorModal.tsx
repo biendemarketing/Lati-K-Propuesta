@@ -4,7 +4,7 @@ import { X, Loader, Sparkles, Check, UploadCloud, RotateCw } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
 
-const API_KEY = 'AIzaSyA8RPPcPdVGWC0dUmmAYp_I-LQzsJxx7LY'; // Key provided by the user.
+const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
 
 const base64StringToFile = (base64String: string, filename: string, mimeType = 'image/jpeg'): File => {
   const byteCharacters = atob(base64String);
