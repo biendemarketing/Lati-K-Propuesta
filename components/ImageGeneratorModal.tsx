@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader, Sparkles, Check, UploadCloud, RotateCw } from 'lucide-react';
+import { GoogleGenAI } from '@google/genai';
 import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
 
 const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const base64StringToFile = (base64String: string, filename: string, mimeType = 'image/jpeg'): File => {
   const byteCharacters = atob(base64String);
@@ -77,9 +79,6 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
     setLoadingMessage(loadingMessages[0]);
 
     try {
-      const { GoogleGenAI } = await import('@google/genai');
-      const ai = new GoogleGenAI({ apiKey: API_KEY });
-
       const response = await ai.models.generateImages({
         model: 'imagen-3.0-generate-002',
         prompt: prompt,

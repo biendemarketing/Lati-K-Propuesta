@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronDown, ChevronRight, LogOut, Plus, Trash2, Save, RotateCcw, Loader, Check, Sparkles, Palette, MessageSquare } from 'lucide-react';
+import { GoogleGenAI, Type } from '@google/genai';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { iconNames } from './IconMapper';
@@ -63,6 +64,7 @@ NOTIFY pgrst, 'reload schema';
 */
 
 const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const templates = [
   { id: 'classic', name: 'Classic', description: 'The complete proposal with all sections.' },
@@ -189,9 +191,6 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
     setIsGeneratingTheme(true);
     setGeneratedPalette(null);
     try {
-        const { GoogleGenAI, Type } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: API_KEY });
-
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: `Generate a color palette for a web proposal based on this theme: "${themePrompt}". Provide a name for the palette. The colors should be aesthetically pleasing and professional. Provide the primary color, and two colors for a gradient.`,

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader, Sparkles, Check } from 'lucide-react';
+import { GoogleGenAI } from '@google/genai';
 
 const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const AIContentGeneratorModal = ({ closeModal, onApplyText, contextDescription, currentValue }: { 
     closeModal: () => void; 
@@ -22,9 +24,6 @@ const AIContentGeneratorModal = ({ closeModal, onApplyText, contextDescription, 
     setGeneratedText('');
 
     try {
-        const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: API_KEY });
-
         const fullPrompt = `You are a creative copywriter for an event planning company called Lati K. 
         Your task is to generate content ${contextDescription}.
         The user's idea or theme is: "${prompt}".
