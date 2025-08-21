@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,10 +25,10 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const success = await login(email, password);
+    const { success, error: loginError } = await login(email, password);
     setLoading(false);
     if (!success) {
-      setError('Invalid email or password.');
+      setError(loginError || 'An unknown error occurred.');
     } else {
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);

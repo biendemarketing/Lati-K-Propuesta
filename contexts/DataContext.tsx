@@ -1,10 +1,8 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import set from 'lodash.set';
 import cloneDeep from 'lodash.clonedeep';
 import get from 'lodash.get';
 import { supabase } from '../lib/supabaseClient';
-import type { Json } from '@supabase/supabase-js';
 
 const initialData = {
   logoUrl: "https://firebasestorage.googleapis.com/v0/b/drossmediapro.appspot.com/o/logo%20lati%20actual%202023%20(2)-04.png?alt=media&token=6a2bb838-c3a1-4162-b438-603bd74d836a",
@@ -142,7 +140,6 @@ interface DataContextType {
   addItem: (path: keyof typeof newItemsTemplates) => void;
   removeItem: (path: string, index: number) => void;
   resetData: () => Promise<void>;
-  updateData: (path: string, value: any) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -153,7 +150,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load data from Supabase on initial mount
   useEffect(() => {
     const fetchData = async () => {
         setIsLoading(true);
@@ -165,12 +161,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
         if (error) {
             console.error("Error fetching proposal data from Supabase:", error);
-            setData(initialData); // Fallback to hardcoded data on error
+            setData(initialData);
         } else if (proposalData) {
             setData(proposalData.data as ProposalData);
         } else {
             console.error("No proposal with slug 'default' found.");
-            setData(initialData); // Fallback if no data is found
+            setData(initialData);
         }
         setIsLoading(false);
     };
@@ -178,7 +174,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     fetchData();
   }, []);
   
-  // Check for changes between draft and saved data
   useEffect(() => {
     if (draftData && data) {
       setIsDirty(JSON.stringify(data) !== JSON.stringify(draftData));
@@ -187,16 +182,16 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [draftData, data]);
   
-  const startEditing = () => {
+  const startEditing = useCallback(() => {
     setDraftData(cloneDeep(data));
-  };
+  }, [data]);
   
-  const saveChanges = async () => {
+  const saveChanges = useCallback(async () => {
     if (!draftData) return;
     
     const { data: updatedData, error } = await supabase
       .from('proposals')
-      .update({ data: draftData as unknown as Json })
+      .update({ data: draftData } as any)
       .eq('slug', 'default')
       .select('data')
       .single();
@@ -208,41 +203,49 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setData(updatedData.data as ProposalData);
       setDraftData(null); // Exit editing mode
     }
-  };
+  }, [draftData]);
   
-  const discardChanges = () => {
-      setDraftData(cloneDeep(data)); // Reset draft to the original saved data
-  };
+  const discardChanges = useCallback(() => {
+      setDraftData(cloneDeep(data));
+  }, [data]);
 
-  const updateDraftData = (path: string, value: any) => {
+  const updateDraftData = useCallback((path: string, value: any) => {
     setDraftData(prevData => {
       if (!prevData) return null;
       const newData = cloneDeep(prevData);
       set(newData, path, value);
       return newData;
     });
-  };
+  }, []);
   
-  const addItem = (path: keyof typeof newItemsTemplates) => {
-    if (!draftData) return;
-    const currentArray = get(draftData, path, []);
-    const newItem = cloneDeep(newItemsTemplates[path]);
-    updateDraftData(path, [...currentArray, newItem]);
-  };
+  const addItem = useCallback((path: keyof typeof newItemsTemplates) => {
+    setDraftData(prevData => {
+        if (!prevData) return prevData;
+        const currentArray = get(prevData, path, []);
+        const newItem = cloneDeep(newItemsTemplates[path]);
+        const newData = cloneDeep(prevData);
+        set(newData, path, [...currentArray, newItem]);
+        return newData;
+    });
+  }, []);
   
-  const removeItem = (path: string, index: number) => {
-    if (!draftData) return;
-    const currentArray = get(draftData, path, []);
-    const newArray = [...currentArray];
-    newArray.splice(index, 1);
-    updateDraftData(path, newArray);
-  };
+  const removeItem = useCallback((path: string, index: number) => {
+    setDraftData(prevData => {
+        if (!prevData) return prevData;
+        const currentArray = get(prevData, path, []);
+        const newArray = [...currentArray];
+        newArray.splice(index, 1);
+        const newData = cloneDeep(prevData);
+        set(newData, path, newArray);
+        return newData;
+    });
+  }, []);
 
-  const resetData = async () => {
+  const resetData = useCallback(async () => {
     if(window.confirm("Are you sure you want to reset all content to the original defaults? This will overwrite the data in the database.")) {
       const { error } = await supabase
           .from('proposals')
-          .update({ data: initialData as unknown as Json })
+          .update({ data: initialData } as any)
           .eq('slug', 'default');
       
       if (error) {
@@ -255,9 +258,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     }
-  };
+  }, [draftData]);
 
-  const value: DataContextType = {
+  const value = useMemo(() => ({
     data,
     isLoading,
     draftData,
@@ -269,8 +272,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     addItem,
     removeItem,
     resetData,
-    updateData: updateDraftData,
-  };
+  }), [data, isLoading, draftData, isDirty, startEditing, saveChanges, discardChanges, updateDraftData, addItem, removeItem, resetData]);
 
   return (
     <DataContext.Provider value={value}>
@@ -282,7 +284,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 export const useData = (): DataContextType => {
   const context = useContext(DataContext);
   if (context === null) {
-      throw new Error('useData must be used within an AuthProvider');
+      throw new Error('useData must be used within a DataProvider');
   }
   return context;
 };

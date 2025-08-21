@@ -53,7 +53,7 @@ const DownloadButton = () => {
         )}
       </AnimatePresence>
 
-      <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col items-center gap-4">
+      <div className="no-print fixed bottom-28 right-8 z-50 flex flex-col items-center gap-4">
         <AnimatePresence>
           {optionsVisible && (
             <motion.div 

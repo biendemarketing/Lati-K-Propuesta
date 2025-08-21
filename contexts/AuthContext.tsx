@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Session } from '@supabase/supabase-js';
@@ -6,7 +5,7 @@ import { Session } from '@supabase/supabase-js';
 interface AuthContextType {
   isAuthenticated: boolean;
   session: Session | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error: string | null }>;
   logout: () => Promise<void>;
 }
 
@@ -33,13 +32,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error: string | null }> => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Error logging in:', error.message);
-      return false;
+      return { success: false, error: error.message };
     }
-    return true;
+    return { success: true, error: null };
   };
 
   const logout = async (): Promise<void> => {

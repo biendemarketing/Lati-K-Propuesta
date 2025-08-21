@@ -82,7 +82,7 @@ const App = () => {
       <DownloadButton />
 
       {isAuthenticated ? (
-        <div className="no-print fixed bottom-28 right-8 z-50">
+        <div className="no-print fixed bottom-8 right-8 z-50">
           <motion.button
             className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40"
             onClick={handleOpenAdminPanel}
@@ -95,7 +95,7 @@ const App = () => {
           </motion.button>
         </div>
       ) : (
-         <div className="no-print fixed bottom-28 right-8 z-50">
+         <div className="no-print fixed bottom-8 right-8 z-50">
           <motion.button
             className="bg-slate-700 text-slate-100 w-16 h-16 rounded-full flex items-center justify-center shadow-lg"
             onClick={() => setIsLoginModalOpen(true)}
