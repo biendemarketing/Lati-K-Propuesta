@@ -46,7 +46,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       console.error(`Error fetching data for slug "${slug}":`, error?.message);
       setData(null);
     } else {
-      setData(proposalData.data as ProposalData);
+      setData(proposalData.data);
     }
     setIsLoading(false);
   }, []);
@@ -196,6 +196,21 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     const newProposalData = cloneDeep(defaultProposal.data) as ProposalData;
     set(newProposalData, 'hero.clientName', proposalName.trim());
+    
+    // Ensure new proposals have a theme object for backward compatibility
+    if (!newProposalData.theme) {
+      set(newProposalData, 'theme', {
+        name: 'Lati Amber',
+        primary: '#f59e0b',
+        primaryGradientFrom: '#f59e0b',
+        primaryGradientTo: '#facc15',
+      });
+    }
+
+    // Ensure new proposals have a template
+    if (!newProposalData.template) {
+      set(newProposalData, 'template', 'classic');
+    }
 
     const { error: insertError } = await supabase.from('proposals').insert([{ slug, data: newProposalData }]);
     if (insertError) {

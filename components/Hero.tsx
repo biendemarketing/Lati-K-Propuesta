@@ -56,7 +56,7 @@ const Hero = () => {
         </motion.div>
 
         <motion.div variants={itemVariants} className="mb-8 print:mb-4">
-          <h2 className="text-xl font-semibold text-amber-400 tracking-widest uppercase print:text-lg">
+          <h2 className="text-xl font-semibold text-[var(--color-primary)] tracking-widest uppercase print:text-lg">
             {hero.subtitle}
           </h2>
           <h1 className="text-5xl md:text-7xl font-black mt-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 print:text-5xl">
@@ -67,15 +67,15 @@ const Hero = () => {
         <motion.div variants={itemVariants} className="max-w-3xl mx-auto mb-8 bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 print:p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
             <div>
-              <p className="font-bold text-amber-400">{hero.clientLabel}:</p>
+              <p className="font-bold text-[var(--color-primary)]">{hero.clientLabel}:</p>
               <p>{hero.clientName}</p>
             </div>
             <div>
-              <p className="font-bold text-amber-400">{hero.activityLabel}:</p>
+              <p className="font-bold text-[var(--color-primary)]">{hero.activityLabel}:</p>
               <p>{hero.activityName}</p>
             </div>
             <div>
-              <p className="font-bold text-amber-400">{hero.themeLabel}:</p>
+              <p className="font-bold text-[var(--color-primary)]">{hero.themeLabel}:</p>
               <p>{hero.themeName}</p>
             </div>
           </div>

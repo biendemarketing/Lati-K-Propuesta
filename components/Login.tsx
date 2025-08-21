@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +11,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
   const [error, setError] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
   const { login, sendPasswordResetEmail } = useAuth();
 
   useEffect(() => {
@@ -28,7 +30,13 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
     const { success, error: loginError } = await login(email, password);
     setLoading(false);
     if (!success) {
-      setError(loginError || 'An unknown error occurred.');
+      if (loginError === 'Invalid login credentials') {
+        setError("Email o contraseña incorrectos. Por favor, inténtalo de nuevo.");
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 500);
+      } else {
+        setError(loginError || 'An unknown error occurred.');
+      }
     } else {
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
@@ -67,9 +75,17 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
       <motion.div 
         className="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 relative"
         initial={{ opacity: 0, y: -20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
+        animate={{
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          x: isShaking ? [0, -8, 8, -8, 8, -4, 4, 0] : 0,
+        }}
         exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        transition={{
+          default: { duration: 0.3, ease: 'easeOut' },
+          x: { duration: 0.4, ease: 'easeInOut' }
+        }}
       >
         <button onClick={closeModal} className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:bg-slate-700 hover:text-slate-100 transition-colors">
           <X size={24}/>
@@ -82,7 +98,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
               className="w-64 mx-auto"
             />
         </div>
-        <h2 className="text-2xl font-bold text-center text-amber-400 mb-6">Admin Login</h2>
+        <h2 className="text-2xl font-bold text-center text-[var(--color-primary)] mb-6">Admin Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-slate-400 mb-2" htmlFor="email">Email</label>
@@ -91,7 +107,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               required
               disabled={loading}
             />
@@ -103,7 +119,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               required
               disabled={loading}
             />
@@ -116,7 +132,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+                className="h-4 w-4 rounded border-slate-600 bg-slate-700 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
               />
               <label htmlFor="remember-me" className="ml-2 block text-slate-300">
                 Recordar email
@@ -125,7 +141,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
             <button
               type="button"
               onClick={handlePasswordReset}
-              className="font-medium text-amber-400 hover:text-amber-300"
+              className="font-medium text-[var(--color-primary)] hover:opacity-80"
               disabled={loading}
             >
               ¿Olvidaste la contraseña?
@@ -135,7 +151,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
           {resetMessage && <p className="text-green-400 text-center text-sm mb-4">{resetMessage}</p>}
           <motion.button
             type="submit"
-            className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-amber-500/30 disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)] text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-[var(--color-primary)]/30 disabled:opacity-50"
             whileHover={{ scale: loading ? 1 : 1.05 }}
             whileTap={{ scale: loading ? 1 : 0.95 }}
             disabled={loading}

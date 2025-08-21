@@ -1,7 +1,15 @@
+
 import { createClient } from '@supabase/supabase-js';
-import type { Json } from '@supabase/supabase-js';
 
 // --- PROPOSAL DATA TYPES ---
+
+interface ThemeData {
+  name: string;
+  primary: string;
+  primaryGradientFrom: string;
+  primaryGradientTo: string;
+}
+
 interface HeroData {
   backgroundImageUrl: string;
   subtitle: string;
@@ -79,6 +87,8 @@ interface FooterData {
 }
 
 export interface ProposalData {
+  template: string;
+  theme: ThemeData;
   logoUrl: string;
   hero: HeroData;
   proposal: ProposalSectionData;
@@ -88,7 +98,6 @@ export interface ProposalData {
   footer: FooterData;
 }
 
-
 export interface Database {
   public: {
     Tables: {
@@ -97,21 +106,21 @@ export interface Database {
           id: number
           created_at: string
           slug: string
-          data: Json
+          data: any
           updated_at: string | null
         }
         Insert: {
           id?: number
           created_at?: string
           slug: string
-          data: Json
+          data: any
           updated_at?: string | null
         }
         Update: {
           id?: number
           created_at?: string
           slug?: string
-          data?: Json
+          data?: any
           updated_at?: string | null
         }
       }

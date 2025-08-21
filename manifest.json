@@ -1,0 +1,23 @@
+{
+  "name": "Lati K Propuesta",
+  "short_name": "Lati K",
+  "description": "A modern, dynamic web presentation for an event proposal by Lati Graduaciones & Fotografía.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "https://rnqlkcapgzapcdzzwlpq.supabase.co/storage/v1/object/public/latikpublicidad/Icono%20LAtik%20Publicidad_Mesa%20de%20trabajo%201.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "https://rnqlkcapgzapcdzzwlpq.supabase.co/storage/v1/object/public/latikpublicidad/Icono%20LAtik%20Publicidad_Mesa%20de%20trabajo%201.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

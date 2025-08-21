@@ -36,7 +36,7 @@ type IconCardProps = {
 
 const IconCard = ({ icon, title, items, imageUrl }: IconCardProps) => (
   <motion.div
-    className="bg-slate-800 rounded-lg border border-slate-700 h-full hover:border-amber-400 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 flex flex-col overflow-hidden group"
+    className="bg-slate-800 rounded-lg border border-slate-700 h-full hover:border-[var(--color-primary)] hover:shadow-2xl hover:shadow-[var(--color-primary)]/10 transition-all duration-300 flex flex-col overflow-hidden group"
     variants={itemVariants}
   >
     {imageUrl && (
@@ -46,7 +46,7 @@ const IconCard = ({ icon, title, items, imageUrl }: IconCardProps) => (
     )}
     <div className="p-6 flex-grow print:p-3">
       <div className="flex items-center mb-4 print:mb-2">
-        <span className="text-amber-400 mr-4 print:mr-2">{icon}</span>
+        <span className="text-[var(--color-primary)] mr-4 print:mr-2">{icon}</span>
         <h3 className="text-xl font-bold">{title}</h3>
       </div>
       <ul className="list-disc list-inside text-slate-300 space-y-1">
@@ -73,7 +73,7 @@ const ServicesSection = () => {
       variants={sectionVariants}
     >
       <motion.h2
-        className="text-4xl md:text-5xl font-bold text-center mb-12 text-amber-400"
+        className="text-4xl md:text-5xl font-bold text-center mb-12 text-[var(--color-primary)]"
         variants={itemVariants}
       >
         {services.title}

@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Hero from './components/Hero';
@@ -33,6 +35,32 @@ const App = () => {
     } else {
       document.title = 'Lati K Propuesta';
     }
+
+    const defaultTheme = {
+      name: 'Lati Amber',
+      primary: '#f59e0b',
+      primaryGradientFrom: '#f59e0b',
+      primaryGradientTo: '#facc15',
+    };
+
+    // Use the theme from data if it's a valid theme object, otherwise fallback to the default.
+    // This robustly handles cases where `data.theme` is missing, null, or an incomplete object.
+    const theme = (data?.theme && data.theme.primary) ? data.theme : defaultTheme;
+
+    const styleId = 'dynamic-theme-style';
+    let styleTag = document.getElementById(styleId);
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = styleId;
+      document.head.appendChild(styleTag);
+    }
+    styleTag.innerHTML = `
+      :root {
+        --color-primary: ${theme.primary};
+        --color-primary-gradient-from: ${theme.primaryGradientFrom};
+        --color-primary-gradient-to: ${theme.primaryGradientTo};
+      }
+    `;
   }, [data]);
 
   const handleOpenAdminPanel = () => {
@@ -71,7 +99,7 @@ const App = () => {
   if (isLoading) {
     return (
       <div className="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center">
-        <Loader className="animate-spin text-amber-500" size={48} />
+        <Loader className="animate-spin text-[var(--color-primary)]" size={48} />
         <p className="text-xl font-semibold mt-4">Cargando Propuesta...</p>
       </div>
     );
@@ -94,7 +122,7 @@ const App = () => {
           aria-hidden="true"
         >
           <div 
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-amber-500 to-yellow-300 opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" 
+            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" 
             style={{
               clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)'
             }}
@@ -104,10 +132,36 @@ const App = () => {
         <Hero />
 
         <main className="container mx-auto px-6 md:px-8">
-          <ProposalSection />
-          <ServicesSection />
-          <FeaturesSection />
-          <IncludedServicesSection />
+          {(() => {
+            const template = data.template || 'classic';
+            switch (template) {
+              case 'compact':
+                return (
+                  <>
+                    <ServicesSection />
+                    <IncludedServicesSection />
+                  </>
+                );
+              case 'visual':
+                return (
+                  <>
+                    <ProposalSection />
+                    <FeaturesSection />
+                    <IncludedServicesSection />
+                  </>
+                );
+              case 'classic':
+              default:
+                return (
+                  <>
+                    <ProposalSection />
+                    <ServicesSection />
+                    <FeaturesSection />
+                    <IncludedServicesSection />
+                  </>
+                );
+            }
+          })()}
         </main>
         
         <div 
@@ -115,7 +169,7 @@ const App = () => {
           aria-hidden="true"
         >
           <div 
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-amber-500 to-yellow-300 opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" 
+            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)] opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" 
             style={{
               clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)'
             }}

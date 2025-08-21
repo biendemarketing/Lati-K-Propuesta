@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronDown, ChevronRight, LogOut, Plus, Trash2, Save, RotateCcw, Loader, Check } from 'lucide-react';
@@ -6,6 +8,22 @@ import { useAuth } from '../contexts/AuthContext';
 import { iconNames } from './IconMapper';
 import ImageUploader from './ImageUploader';
 import get from 'lodash.get';
+
+const templates = [
+  { id: 'classic', name: 'Classic', description: 'The complete proposal with all sections.' },
+  { id: 'compact', name: 'Compact', description: 'A shorter proposal focusing on services and cost.' },
+  { id: 'visual', name: 'Visual Focus', description: 'Highlights image-based sections like Proposal and Features.' },
+  { id: 'services-focused', name: 'Services Focused', description: 'Focuses on the services list, omitting features.' },
+  { id: 'minimalist', name: 'Minimalist', description: 'A direct quote showing only the included services and cost.' },
+];
+
+const palettes = [
+  { name: 'Lati Amber', primary: '#f59e0b', primaryGradientFrom: '#f59e0b', primaryGradientTo: '#facc15' },
+  { name: 'Sapphire Blue', primary: '#38bdf8', primaryGradientFrom: '#3b82f6', primaryGradientTo: '#818cf8' },
+  { name: 'Emerald Green', primary: '#34d399', primaryGradientFrom: '#10b981', primaryGradientTo: '#6ee7b7' },
+  { name: 'Ruby Red', primary: '#f43f5e', primaryGradientFrom: '#ef4444', primaryGradientTo: '#f97316' },
+  { name: 'Amethyst Purple', primary: '#c084fc', primaryGradientFrom: '#a855f7', primaryGradientTo: '#d8b4fe' },
+];
 
 const Section = ({ title, id, children, isOpen, onToggle }: { title: string, id: string, children: React.ReactNode, isOpen: boolean, onToggle: () => void }) => (
     <div className="border-b border-slate-700">
@@ -25,7 +43,7 @@ const EditableField = ({ label, path, type = 'text', value, onChange }: { label:
                 <textarea
                     value={value}
                     onChange={(e) => onChange(path, e.target.value)}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                     rows={3}
                 />
             ) : (
@@ -33,7 +51,7 @@ const EditableField = ({ label, path, type = 'text', value, onChange }: { label:
                     type="text"
                     value={value}
                     onChange={(e) => onChange(path, e.target.value)}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
             )}
         </div>
@@ -121,7 +139,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
       <select 
         value={currentValue} 
         onChange={(e) => handleSelectChange(path, e.target.value)}
-        className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+        className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
       >
         {iconNames.map(name => <option key={name} value={name}>{name}</option>)}
       </select>
@@ -151,13 +169,51 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
       className="fixed top-0 right-0 h-full w-full max-w-lg bg-slate-800 text-slate-100 shadow-2xl z-50 border-l border-slate-700 flex flex-col"
     >
       <div className="flex justify-between items-center p-4 border-b border-slate-700 shrink-0">
-        <h2 className="text-xl font-bold text-amber-400">Edit Content</h2>
+        <h2 className="text-xl font-bold text-[var(--color-primary)]">Edit Content</h2>
         <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-700"><X /></button>
       </div>
       <div className="overflow-y-auto flex-grow">
         
         <Section title="General Settings" id="general" isOpen={!!openSections['general']} onToggle={() => toggleSection('general')}>
           <ImageUploader path="logoUrl" currentImageUrl={draftData.logoUrl} />
+           <div className="my-4">
+              <label className="block text-xs font-medium text-slate-400 mb-2">Proposal Template</label>
+              <div className="space-y-2">
+                  {templates.map(template => (
+                      <button 
+                          key={template.id}
+                          onClick={() => updateDraftData('template', template.id)}
+                           className={`w-full p-3 rounded-md border-2 text-left transition-all flex items-center gap-3 ${
+                            get(draftData, 'template', 'classic') === template.id 
+                            ? 'border-[var(--color-primary)] bg-slate-700/50' 
+                            : 'border-slate-600 hover:border-slate-500 bg-slate-700'
+                          }`}
+                      >
+                         <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0" style={{borderColor: get(draftData, 'template', 'classic') === template.id ? 'var(--color-primary)' : 'rgb(71 85 105)'}}>
+                           { get(draftData, 'template', 'classic') === template.id && <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-primary)]"></div>}
+                         </div>
+                         <div>
+                            <p className="font-semibold text-sm">{template.name}</p>
+                            <p className="text-xs text-slate-400">{template.description}</p>
+                         </div>
+                      </button>
+                  ))}
+              </div>
+          </div>
+          <div className="my-4">
+              <label className="block text-xs font-medium text-slate-400 mb-2">Color Theme</label>
+              <div className="grid grid-cols-5 gap-2">
+                  {palettes.map(palette => (
+                      <button 
+                          key={palette.name}
+                          onClick={() => updateDraftData('theme', palette)}
+                          className={`h-12 w-full rounded-md border-2 transition-all ${get(draftData, 'theme.name') === palette.name ? 'border-white ring-2 ring-white' : 'border-transparent hover:border-slate-500'}`}
+                          style={{ background: `linear-gradient(to right, ${palette.primaryGradientFrom}, ${palette.primaryGradientTo})` }}
+                          title={palette.name}
+                      />
+                  ))}
+              </div>
+          </div>
         </Section>
         
         <Section title="Hero Section" id="hero" isOpen={!!openSections['hero']} onToggle={() => toggleSection('hero')}>
@@ -186,7 +242,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
                 <ImageUploader path={`proposal.cards.${index}.imageUrl`} currentImageUrl={card.imageUrl} />
              </div>
            ))}
-           <button onClick={() => addItem('proposal.cards')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Proposal Card</button>
+           <button onClick={() => addItem('proposal.cards')} className="mt-2 text-sm flex items-center gap-2 text-[var(--color-primary)] font-semibold"><Plus size={16}/> Add Proposal Card</button>
         </Section>
         
         <Section title="Services Section" id="services" isOpen={!!openSections['services']} onToggle={() => toggleSection('services')}>
@@ -207,7 +263,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
                 <ImageUploader path={`services.cards.${index}.imageUrl`} currentImageUrl={card.imageUrl} />
              </div>
            ))}
-           <button onClick={() => addItem('services.cards')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Service Card</button>
+           <button onClick={() => addItem('services.cards')} className="mt-2 text-sm flex items-center gap-2 text-[var(--color-primary)] font-semibold"><Plus size={16}/> Add Service Card</button>
         </Section>
 
          <Section title="Features Section" id="features" isOpen={!!openSections['features']} onToggle={() => toggleSection('features')}>
@@ -226,7 +282,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
                 <ImageUploader path={`features.items.${index}.imageUrl`} currentImageUrl={item.imageUrl} />
              </div>
            ))}
-           <button onClick={() => addItem('features.items')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Feature</button>
+           <button onClick={() => addItem('features.items')} className="mt-2 text-sm flex items-center gap-2 text-[var(--color-primary)] font-semibold"><Plus size={16}/> Add Feature</button>
         </Section>
 
         <Section title="Included Section" id="included" isOpen={!!openSections['included']} onToggle={() => toggleSection('included')}>
@@ -241,7 +297,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
                 <EditableField label="Item text" path={`included.items.${index}.text`} value={item.text} onChange={updateDraftData} />
              </div>
            ))}
-           <button onClick={() => addItem('included.items')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Included Item</button>
+           <button onClick={() => addItem('included.items')} className="mt-2 text-sm flex items-center gap-2 text-[var(--color-primary)] font-semibold"><Plus size={16}/> Add Included Item</button>
             <hr className="my-4 border-slate-600"/>
             <EditableField label="Cost Title" path="included.costTitle" value={get(draftData, 'included.costTitle')} onChange={updateDraftData} />
             <EditableField label="Cost Amount" path="included.cost" value={get(draftData, 'included.cost')} onChange={updateDraftData} />
@@ -268,6 +324,34 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
             </div>
         </Section>
         
+        <Section title="Ayuda / Help" id="help" isOpen={!!openSections['help']} onToggle={() => toggleSection('help')}>
+            <div className="space-y-4 text-sm text-slate-300">
+                <div>
+                    <h4 className="font-semibold text-base text-white mb-2">¿Cómo usar el editor?</h4>
+                    <ul className="list-disc list-inside space-y-1 pl-2">
+                        <li><strong>Editar Contenido:</strong> Simplemente haz clic en cualquier campo y escribe. Los cambios se reflejan en vivo en la propuesta.</li>
+                        <li><strong>Guardar Cambios:</strong> Tus cambios no son permanentes hasta que presionas el botón <span className="font-bold text-[var(--color-primary)]">"Save Changes"</span>.</li>
+                        <li><strong>Descartar Cambios:</strong> Si cometes un error, el botón <span className="font-bold text-slate-400">"Discard Changes"</span> restaurará el contenido a la última versión guardada.</li>
+                        <li><strong>Plantillas y Temas:</strong> En "General Settings", puedes cambiar toda la estructura (Plantilla) y los colores (Tema) de la propuesta con un solo clic.</li>
+                        <li><strong>Subir Imágenes:</strong> Haz clic en cualquier área de imagen para subir un nuevo archivo desde tu dispositivo.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-base text-white mb-2">Gestionar Propuestas</h4>
+                    <ul className="list-disc list-inside space-y-1 pl-2">
+                        <li>Usa los botones flotantes en la esquina inferior derecha para:
+                            <ul className="list-['-_'] list-inside pl-4">
+                               <li><strong className="text-purple-400">Listar</strong> todas tus propuestas.</li>
+                               <li><strong className="text-green-400">Crear</strong> una nueva propuesta.</li>
+                               <li><strong className="text-blue-400">Editar</strong> la propuesta actual (abre este panel).</li>
+                            </ul>
+                        </li>
+                         <li><strong>Descargar como PDF:</strong> Usa el botón de descarga para generar un PDF. Puedes elegir orientación vertical u horizontal.</li>
+                    </ul>
+                </div>
+            </div>
+        </Section>
+
       </div>
       <div className="p-4 bg-slate-900 border-t border-slate-700 flex justify-end items-center gap-4 shrink-0">
           <button 
@@ -282,7 +366,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
             disabled={!isDirty || isSaving}
             className={`flex items-center justify-center gap-2 w-40 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300
               ${isSaving ? 'bg-slate-600 text-slate-400 cursor-not-allowed' : ''}
-              ${saveSuccess ? 'bg-green-500' : 'bg-gradient-to-r from-amber-500 to-yellow-400'}
+              ${saveSuccess ? 'bg-green-500' : `bg-gradient-to-r from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)]`}
               ${!isDirty && !isSaving && !saveSuccess ? 'disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed' : 'hover:opacity-90'}
             `}
           >

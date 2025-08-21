@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, FileText, RectangleHorizontal } from 'lucide-react';
@@ -47,7 +48,7 @@ const DownloadButton = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
               className="absolute bottom-full right-0 mb-4 bg-slate-800 text-slate-100 p-4 rounded-lg shadow-2xl z-40 w-64 border border-slate-700"
             >
               <p className="text-sm font-semibold">Generating PDF ({orientation})...</p>
-              <p className="text-xs text-slate-300 mt-1">In the print window, please select <strong className="text-amber-400">"Save as PDF"</strong> as the destination.</p>
+              <p className="text-xs text-slate-300 mt-1">In the print window, please select <strong className="text-[var(--color-primary)]">"Save as PDF"</strong> as the destination.</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -90,7 +91,7 @@ const DownloadButton = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
         </AnimatePresence>
         
         <motion.button
-          className="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/40"
+          className="bg-gradient-to-r from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)] text-slate-900 w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-[var(--color-primary)]/40"
           onClick={() => setOptionsVisible(!optionsVisible)}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}

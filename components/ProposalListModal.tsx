@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { X, Loader, Trash2, ExternalLink, Edit } from 'lucide-react';
@@ -76,7 +77,7 @@ const ProposalListModal = ({ closeModal }: { closeModal: () => void }) => {
         transition={{ duration: 0.3, ease: 'easeOut' }}
       >
         <div className="flex justify-between items-center mb-6 shrink-0">
-            <h2 className="text-2xl font-bold text-amber-400">Gestionar Propuestas</h2>
+            <h2 className="text-2xl font-bold text-[var(--color-primary)]">Gestionar Propuestas</h2>
             <button onClick={closeModal} className="p-2 rounded-full text-slate-400 hover:bg-slate-700 hover:text-slate-100 transition-colors">
               <X size={24}/>
             </button>
@@ -85,7 +86,7 @@ const ProposalListModal = ({ closeModal }: { closeModal: () => void }) => {
         <div className="overflow-y-auto flex-grow">
             {loading ? (
                 <div className="flex justify-center items-center h-48">
-                    <Loader className="animate-spin text-amber-500" size={32} />
+                    <Loader className="animate-spin text-[var(--color-primary)]" size={32} />
                 </div>
             ) : error ? (
                 <p className="text-red-400 text-center">{error}</p>
@@ -110,7 +111,7 @@ const ProposalListModal = ({ closeModal }: { closeModal: () => void }) => {
                                     href={proposal.slug === 'default' ? '/' : `/?proposal=${proposal.slug}`} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="p-2 text-slate-300 hover:text-amber-400 transition-colors"
+                                    className="p-2 text-slate-300 hover:text-[var(--color-primary)] transition-colors"
                                     title="Abrir Propuesta"
                                 >
                                     <ExternalLink size={18} />

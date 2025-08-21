@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { CheckCircle, Camera, Users, Package, Truck, DollarSign } from 'lucide-react';
@@ -28,7 +29,7 @@ type ListItemProps = {
 
 const ListItem = ({ icon, text }: ListItemProps) => (
   <motion.li className="flex items-center text-lg" variants={itemVariants}>
-    <span className="text-amber-400 mr-4 print:mr-2">{icon}</span>
+    <span className="text-[var(--color-primary)] mr-4 print:mr-2">{icon}</span>
     <span>{text}</span>
   </motion.li>
 );
@@ -50,7 +51,7 @@ const IncludedServicesSection = () => {
       variants={containerVariants}
     >
       <motion.h2
-        className="text-4xl md:text-5xl font-bold text-center mb-12 text-amber-400"
+        className="text-4xl md:text-5xl font-bold text-center mb-12 text-[var(--color-primary)]"
         variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } } }}
       >
         {included.title}
@@ -71,22 +72,22 @@ const IncludedServicesSection = () => {
         </div>
         
         <motion.div
-          className="bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-xl border border-amber-500 shadow-2xl shadow-amber-500/20 text-center print:p-6"
+          className="bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-xl border border-[var(--color-primary)] shadow-2xl shadow-[var(--color-primary)]/20 text-center print:p-6"
           initial={{ scale: 0.8, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.8, ease: 'backOut' }}
         >
           <div className="flex justify-center items-center mb-4 print:mb-2">
-            <DollarSign className="text-amber-400" size={40} />
+            <DollarSign className="text-[var(--color-primary)]" size={40} />
             <h3 className="text-2xl font-bold ml-2">{included.costTitle}</h3>
           </div>
           <p className="text-6xl font-black text-white my-4 print:text-5xl print:my-2">{included.cost}</p>
           <p className="text-slate-400">{included.costDescription}</p>
            <a href={mailtoHref} className="no-print inline-block mt-8">
              <motion.button
-                className="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-amber-500/30 transition-all"
-                whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(245, 158, 11, 0.5)" }}
+                className="bg-gradient-to-r from-[var(--color-primary-gradient-from)] to-[var(--color-primary-gradient-to)] text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-[var(--color-primary)]/30 transition-all"
+                whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px var(--color-primary)/0.5" }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >

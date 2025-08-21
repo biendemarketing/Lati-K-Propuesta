@@ -21,23 +21,23 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center mb-2">
-              <Phone size={20} className="text-amber-400 mr-3" />
+              <Phone size={20} className="text-[var(--color-primary)] mr-3" />
               <h4 className="font-bold text-lg">{footer.phoneLabel}</h4>
             </div>
-            <a href={`tel:${footer.phoneNumber}`} className="text-slate-300 hover:text-amber-400 transition-colors">{footer.phoneNumber}</a>
+            <a href={`tel:${footer.phoneNumber}`} className="text-slate-300 hover:text-[var(--color-primary)] transition-colors">{footer.phoneNumber}</a>
           </div>
           
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center mb-2">
-              <Mail size={20} className="text-amber-400 mr-3" />
+              <Mail size={20} className="text-[var(--color-primary)] mr-3" />
               <h4 className="font-bold text-lg">{footer.emailLabel}</h4>
             </div>
-            <a href={`mailto:${footer.emailAddress}`} className="text-slate-300 hover:text-amber-400 transition-colors break-all">{footer.emailAddress}</a>
+            <a href={`mailto:${footer.emailAddress}`} className="text-slate-300 hover:text-[var(--color-primary)] transition-colors break-all">{footer.emailAddress}</a>
           </div>
 
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center mb-2">
-              <MapPin size={20} className="text-amber-400 mr-3" />
+              <MapPin size={20} className="text-[var(--color-primary)] mr-3" />
               <h4 className="font-bold text-lg">{footer.addressLabel}</h4>
             </div>
             <p className="text-slate-300">{footer.address}</p>

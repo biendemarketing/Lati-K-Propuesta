@@ -30,7 +30,7 @@ const contentVariants: Variants = {
 
 const Title = ({ children }: TitleProps) => (
   <motion.h2 
-    className="text-4xl md:text-5xl font-bold text-center mb-12 text-amber-400"
+    className="text-4xl md:text-5xl font-bold text-center mb-12 text-[var(--color-primary)]"
     variants={contentVariants}
   >
     {children}
