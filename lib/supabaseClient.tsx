@@ -112,14 +112,14 @@ export interface Database {
           id?: number
           created_at?: string
           slug: string
-          data: ProposalData
+          data: any
           updated_at?: string | null
         }
         Update: {
           id?: number
           created_at?: string
           slug?: string
-          data?: ProposalData
+          data?: any
           updated_at?: string | null
         }
       }
