@@ -6,11 +6,6 @@ import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
 
 const API_KEY = 'AIzaSyA8RPPcPdVGWC0dUmmAYp_I-LQzsJxx7LY'; // Key provided by the user.
-if (!API_KEY) {
-  console.warn("Gemini API key is not configured. Image generation will not work.");
-}
-// Initialize the Google AI client
-const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const base64StringToFile = (base64String: string, filename: string, mimeType = 'image/jpeg'): File => {
   const byteCharacters = atob(base64String);
@@ -68,8 +63,13 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
 
 
   const handleGenerate = async () => {
-    if (!prompt.trim() || !API_KEY) {
-      setError("Please enter a prompt. Also ensure the API key is configured.");
+    if (!prompt.trim()) {
+      setError("Please enter a prompt.");
+      return;
+    }
+    if (!API_KEY) {
+      console.error("Gemini API key is not configured. Image generation will not work.");
+      setError("Gemini API key is not configured.");
       return;
     }
     setIsGenerating(true);
@@ -78,6 +78,9 @@ const ImageGeneratorModal = ({ path, closeModal }: { path: string; closeModal: (
     setLoadingMessage(loadingMessages[0]);
 
     try {
+      // Initialize the Google AI client here, just before use, to prevent app crash on load.
+      const ai = new GoogleGenAI({ apiKey: API_KEY });
+
       const response = await ai.models.generateImages({
         model: 'imagen-3.0-generate-002',
         prompt: prompt,
