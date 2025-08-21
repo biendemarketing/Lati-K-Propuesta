@@ -46,12 +46,12 @@ type FeatureProps = {
 
 const Feature = ({ icon, title, description, imageUrl, reverse = false }: FeatureProps) => (
   <motion.div
-    className={`flex flex-col ${reverse ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-12`}
+    className={`flex flex-col ${reverse ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-12 print:flex-row print:gap-4`}
     variants={sectionVariants}
   >
     <motion.div className="md:w-1/2" variants={featureVariants}>
-      <div className="flex items-center mb-4">
-        <span className="text-amber-400 mr-4">{icon}</span>
+      <div className="flex items-center mb-4 print:mb-2">
+        <span className="text-amber-400 mr-4 print:mr-2">{icon}</span>
         <h3 className="text-3xl font-bold">{title}</h3>
       </div>
       <p className="text-slate-300 leading-relaxed">{description}</p>
@@ -68,7 +68,7 @@ const Feature = ({ icon, title, description, imageUrl, reverse = false }: Featur
 const FeaturesSection = () => {
   return (
     <motion.section
-      className="py-24 space-y-20 print-page-break"
+      className="py-24 space-y-20 print:space-y-0 print-slide"
       initial="offscreen"
       whileInView="onscreen"
       viewport={{ once: true, amount: 0.2 }}
@@ -83,27 +83,29 @@ const FeaturesSection = () => {
         Experiencias Adicionales
       </motion.h2>
       
-      <Feature
-        icon={<Tent size={32} />}
-        title="Área de Fotos Interactiva"
-        description="Una escenografía acorde al tema del evento para que los invitados se tomen fotos. Estará colocada en los laterales del escenario central, siendo completamente interactiva."
-        imageUrl="https://i.pinimg.com/736x/a5/81/54/a58154ebb4f370385ef39c2d6f0ccd62.jpg"
-      />
-      
-      <Feature
-        icon={<Video size={32} />}
-        title="Plataforma Videobook 30"
-        description="Se montará un Videobook 360 en la entrada para que los invitados puedan grabar videos al llegar y luego seguir la 'carrera' hasta la meta, creando recuerdos dinámicos desde el primer momento."
-        imageUrl="https://i.pinimg.com/1200x/87/f9/ce/87f9ce883d23b69fbf8434b471cbdcc6.jpg"
-        reverse={true}
-      />
+      <div className="flex flex-col space-y-20 print:space-y-4 print:w-full">
+        <Feature
+          icon={<Tent size={32} />}
+          title="Área de Fotos Interactiva"
+          description="Una escenografía acorde al tema del evento para que los invitados se tomen fotos. Estará colocada en los laterales del escenario central, siendo completamente interactiva."
+          imageUrl="https://i.pinimg.com/736x/a5/81/54/a58154ebb4f370385ef39c2d6f0ccd62.jpg"
+        />
+        
+        <Feature
+          icon={<Video size={32} />}
+          title="Plataforma Videobook 30"
+          description="Se montará un Videobook 360 en la entrada para que los invitados puedan grabar videos al llegar y luego seguir la 'carrera' hasta la meta, creando recuerdos dinámicos desde el primer momento."
+          imageUrl="https://i.pinimg.com/1200x/87/f9/ce/87f9ce883d23b69fbf8434b471cbdcc6.jpg"
+          reverse={true}
+        />
 
-      <Feature
-        icon={<Sparkles size={32} />}
-        title="Letras Gigantes 'PROMO 2025'"
-        description="Para destacar el año de la promoción, colocaremos letras iluminadas con el texto 'PROMO 2025', dejando plasmado este año en los recuerdos de la promoción de una forma espectacular."
-        imageUrl="https://m.media-amazon.com/images/I/71CrT-1QdEL._UF894,1000_QL80_.jpg"
-      />
+        <Feature
+          icon={<Sparkles size={32} />}
+          title="Letras Gigantes 'PROMO 2025'"
+          description="Para destacar el año de la promoción, colocaremos letras iluminadas con el texto 'PROMO 2025', dejando plasmado este año en los recuerdos de la promoción de una forma espectacular."
+          imageUrl="https://m.media-amazon.com/images/I/71CrT-1QdEL._UF894,1000_QL80_.jpg"
+        />
+      </div>
 
     </motion.section>
   );

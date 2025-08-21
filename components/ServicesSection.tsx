@@ -39,13 +39,13 @@ const IconCard = ({ icon, title, items, imageUrl }: IconCardProps) => (
     variants={itemVariants}
   >
     {imageUrl && (
-      <div className="h-48 w-full overflow-hidden shrink-0">
+      <div className="h-48 w-full overflow-hidden shrink-0 print:h-24">
         <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
       </div>
     )}
-    <div className="p-6 flex-grow">
-      <div className="flex items-center mb-4">
-        <span className="text-amber-400 mr-4">{icon}</span>
+    <div className="p-6 flex-grow print:p-3">
+      <div className="flex items-center mb-4 print:mb-2">
+        <span className="text-amber-400 mr-4 print:mr-2">{icon}</span>
         <h3 className="text-xl font-bold">{title}</h3>
       </div>
       <ul className="list-disc list-inside text-slate-300 space-y-1">
@@ -87,7 +87,7 @@ const ServicesSection = () => {
 
   return (
     <motion.section 
-      className="py-24 print-page-break"
+      className="py-24 print-slide"
       initial="offscreen"
       whileInView="onscreen"
       viewport={{ once: true, amount: 0.2 }}
@@ -99,7 +99,7 @@ const ServicesSection = () => {
       >
         Producción Técnica y Efectos
       </motion.h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 print:grid-cols-4 print:gap-4">
         {services.map((service, index) => (
           <IconCard key={index} icon={service.icon} title={service.title} items={service.items} imageUrl={service.imageUrl} />
         ))}

@@ -19,21 +19,43 @@
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
-        .print-hide {
+        .no-print, .print-hide {
           display: none !important;
         }
-        .print-page-break {
+
+        /* The main slide structure for each section */
+        .print-slide {
           page-break-before: always;
-          padding-top: 4rem; /* Add some space at the top of new pages */
-        }
-        .hero-section {
-          min-height: 100vh;
+          height: 100vh; /* Fill the entire page height */
+          width: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          justify-content: center; /* Vertically center the content */
+          box-sizing: border-box;
+          padding: 2rem 4rem; /* Standard slide padding */
+          overflow: hidden; /* Prevent content from spilling */
         }
-        .no-print {
-          display: none !important;
+        
+        /* The first slide (Hero) should not have a page break before it */
+        .hero-section.print-slide {
+           page-break-before: auto;
+        }
+
+        /* --- Global Print Typography & Spacing Adjustments --- */
+        .print-slide h2 {
+          font-size: 2.5rem !important;
+          margin-bottom: 2rem !important;
+        }
+        .print-slide h3 {
+          font-size: 1.25rem !important; /* Slightly smaller h3 */
+        }
+        .print-slide p, .print-slide li, .print-slide div {
+          font-size: 0.9rem !important; /* Standardized paragraph text */
+          line-height: 1.4 !important;
+        }
+        .print-slide .lucide { /* Resize icons */
+          width: 24px !important;
+          height: 24px !important;
         }
       }
     </style>

@@ -12,7 +12,7 @@ const SectionWrapper = ({ children }: SectionWrapperProps) => (
     whileInView="onscreen"
     viewport={{ once: true, amount: 0.3 }}
     transition={{ staggerChildren: 0.2 }}
-    className="py-24 print-page-break"
+    className="py-24 print-slide"
   >
     {children}
   </motion.div>
@@ -44,13 +44,13 @@ type CardProps = {
 
 const Card = ({ title, description, imageUrl }: CardProps) => (
   <motion.div
-    className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700 flex flex-col md:flex-row group"
+    className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700 flex flex-col md:flex-row group print:flex-row"
     variants={contentVariants}
   >
-    <div className="md:w-1/2 h-64 md:h-96 overflow-hidden shrink-0">
+    <div className="md:w-1/2 h-64 md:h-96 overflow-hidden shrink-0 print:h-auto print:w-1/2">
       <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
     </div>
-    <div className="md:w-1/2 p-8 flex flex-col justify-center">
+    <div className="md:w-1/2 p-8 flex flex-col justify-center print:p-4 print:w-1/2">
       <h3 className="text-2xl font-bold mb-4">{title}</h3>
       <p className="text-slate-300 leading-relaxed">{description}</p>
     </div>
@@ -61,7 +61,7 @@ const ProposalSection = () => {
   return (
     <SectionWrapper>
       <Title>Propuesta de Ambientación</Title>
-      <div className="space-y-12">
+      <div className="space-y-12 print:space-y-0 print:flex print:gap-8">
         <Card
           title="Decoración de Entrada: Pista de Carreras"
           description="Montaje de un camino simulando una pista de carreras, con columnas de cuadros blancos y negros. Una simulación de pista negra con líneas blancas, gomas y banderines para que los invitados sientan que están entrando a una carrera de Fórmula 1."
