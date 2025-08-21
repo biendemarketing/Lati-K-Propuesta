@@ -1,10 +1,11 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronDown, ChevronRight, LogOut, Plus, Trash2, Save, RotateCcw, Loader, Check, Sparkles, Palette, MessageSquare } from 'lucide-react';
-import { GoogleGenAI, Type } from '@google/genai';
+import { Type } from '@google/genai';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { iconNames } from './IconMapper';
@@ -12,6 +13,7 @@ import ImageUploader from './ImageUploader';
 import get from 'lodash.get';
 import type { ProposalComment, ProposalData } from '../lib/supabaseClient';
 import EditableFieldWithAI from './EditableFieldWithAI';
+import { ai } from '../lib/aiClient';
 
 /*
 -- REQUIRED SQL for this component to enable comments --
@@ -62,9 +64,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.proposal_comments TO authen
 -- This ensures PostgREST sees the new table and policies immediately.
 NOTIFY pgrst, 'reload schema';
 */
-
-const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
-const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const templates = [
   { id: 'classic', name: 'Classic', description: 'The complete proposal with all sections.' },
@@ -187,7 +186,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
   };
 
   const handleGenerateTheme = async () => {
-    if (!themePrompt.trim() || !API_KEY) return;
+    if (!themePrompt.trim()) return;
     setIsGeneratingTheme(true);
     setGeneratedPalette(null);
     try {

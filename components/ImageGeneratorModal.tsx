@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader, Sparkles, Check, RotateCw } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
 import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
-
-const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+import { ai } from '../lib/aiClient';
 
 const base64StringToFile = (base64String: string, filename: string, mimeType = 'image/jpeg'): File => {
   const byteCharacters = atob(base64String);

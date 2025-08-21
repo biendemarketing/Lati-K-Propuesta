@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader, Sparkles, Check } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
-
-const API_KEY = 'AIzaSyBAYO5ltFsHTKfdhVZm0tLQCnRQxNmRcHU'; // Key provided by the user.
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+import { ai } from '../lib/aiClient';
 
 const AIContentGeneratorModal = ({ closeModal, onApplyText, contextDescription, currentValue }: { 
     closeModal: () => void; 
@@ -18,7 +15,7 @@ const AIContentGeneratorModal = ({ closeModal, onApplyText, contextDescription, 
   const [generatedText, setGeneratedText] = useState('');
 
   const handleGenerate = async () => {
-    if (!prompt.trim() || !API_KEY) return;
+    if (!prompt.trim()) return;
     setIsGenerating(true);
     setError('');
     setGeneratedText('');
