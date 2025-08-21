@@ -46,7 +46,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       console.error(`Error fetching data for slug "${slug}":`, error?.message);
       setData(null);
     } else {
-      setData(proposalData.data);
+      setData(proposalData.data as ProposalData);
     }
     setIsLoading(false);
   }, []);
@@ -172,7 +172,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(`Failed to reset data: ${updateError.message}`);
     }
     
-    setData(defaultData.data); // Update UI immediately
+    setData(defaultData.data as ProposalData); // Update UI immediately
   };
   
   const createProposal = async (proposalName: string): Promise<string> => {
@@ -194,10 +194,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Could not find the default proposal template to clone.');
     }
 
-    const newProposalData = cloneDeep(defaultProposal.data);
+    const newProposalData = cloneDeep(defaultProposal.data) as ProposalData;
     set(newProposalData, 'hero.clientName', proposalName.trim());
 
-    const { error: insertError } = await supabase.from('proposals').insert({ slug, data: newProposalData });
+    const { error: insertError } = await supabase.from('proposals').insert([{ slug, data: newProposalData }]);
     if (insertError) {
       throw new Error(`Could not create new proposal: ${insertError.message}`);
     }

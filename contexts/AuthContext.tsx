@@ -45,10 +45,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async (): Promise<void> => {
-    const { error } = await supabase.auth.signOut();
-    if(error){
+    // To prevent an "Auth session missing!" error, we first check if a session exists.
+    // This handles cases where the session has expired but the UI hasn't updated yet.
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
         console.error('Error logging out:', error.message);
+      }
     }
+    // If no session exists, the user is already logged out, so we don't need to do anything.
   };
 
   const sendPasswordResetEmail = async (email: string): Promise<{ success: boolean; error: string | null }> => {

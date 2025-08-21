@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Json } from '@supabase/supabase-js';
 
 // --- PROPOSAL DATA TYPES ---
 interface HeroData {
@@ -96,21 +97,21 @@ export interface Database {
           id: number
           created_at: string
           slug: string
-          data: ProposalData
+          data: Json
           updated_at: string | null
         }
         Insert: {
           id?: number
           created_at?: string
           slug: string
-          data: ProposalData
+          data: Json
           updated_at?: string | null
         }
         Update: {
           id?: number
           created_at?: string
           slug?: string
-          data?: ProposalData
+          data?: Json
           updated_at?: string | null
         }
       }
