@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { X, ChevronDown, ChevronRight, LogOut, Plus, Trash2, Save, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, ChevronDown, ChevronRight, LogOut, Plus, Trash2, Save, RotateCcw, Loader, Check } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { iconNames } from './IconMapper';
 import ImageUploader from './ImageUploader';
 import get from 'lodash.get';
 
-// --- Helper Components defined OUTSIDE AdminPanel ---
-
-// Section component for collapsible areas
 const Section = ({ title, id, children, isOpen, onToggle }: { title: string, id: string, children: React.ReactNode, isOpen: boolean, onToggle: () => void }) => (
     <div className="border-b border-slate-700">
       <button onClick={onToggle} className="w-full flex justify-between items-center p-4 hover:bg-slate-700/50">
@@ -20,7 +17,6 @@ const Section = ({ title, id, children, isOpen, onToggle }: { title: string, id:
     </div>
 );
 
-// Field renderer component for inputs and textareas
 const EditableField = ({ label, path, type = 'text', value, onChange }: { label: string, path: string, type?: 'text' | 'textarea', value: string, onChange: (path: string, value: string) => void }) => {
     return (
         <div className="mb-4">
@@ -46,11 +42,14 @@ const EditableField = ({ label, path, type = 'text', value, onChange }: { label:
 
 
 const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
-  const { draftData, updateDraftData, resetData, addItem, removeItem, saveChanges, isDirty, discardChanges } = useData();
+  const { draftData, updateDraftData, addItem, removeItem, saveChanges, isDirty, discardChanges, resetData } = useData();
   const { logout } = useAuth();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
       general: true
   });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const handleClose = () => {
     if (isDirty) {
@@ -71,9 +70,41 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
     }
   };
 
-  const handleSave = () => {
-    saveChanges();
-    closePanel();
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveSuccess(false);
+    setSaveError('');
+    try {
+        await saveChanges();
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 2000); // Reset success state after 2s
+    } catch (error) {
+        if (error instanceof Error) {
+            setSaveError(error.message);
+        } else {
+            setSaveError("An unknown error occurred while saving.");
+        }
+    } finally {
+        setIsSaving(false);
+    }
+  };
+  
+  const handleReset = async () => {
+    const confirmation = prompt("This is a destructive action. To confirm, please type 'RESET' below.");
+    if (confirmation === 'RESET') {
+        try {
+            await resetData();
+            alert("Data has been reset to defaults successfully.");
+        } catch(error) {
+            if (error instanceof Error) {
+                alert(`Error resetting data: ${error.message}`);
+            } else {
+                alert('An unknown error occurred during reset.');
+            }
+        }
+    } else {
+        alert("Reset cancelled. Confirmation text did not match.");
+    }
   };
   
   const handleSelectChange = (path: string, value: string) => {
@@ -224,7 +255,7 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
                     <h4 className="font-semibold">Reset Data</h4>
                     <p className="text-xs text-slate-400">Reverts all content to the original defaults.</p>
                 </div>
-                <button onClick={resetData} className="text-sm bg-red-800 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Reset to Defaults</button>
+                <button onClick={handleReset} className="text-sm bg-red-800 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Reset to Defaults</button>
             </div>
              <div className="flex justify-between items-center mt-4">
                 <div>
@@ -241,19 +272,41 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
       <div className="p-4 bg-slate-900 border-t border-slate-700 flex justify-end items-center gap-4 shrink-0">
           <button 
             onClick={handleDiscard} 
-            disabled={!isDirty}
+            disabled={!isDirty || isSaving}
             className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-slate-100 font-bold py-2 px-4 rounded-lg transition-colors"
            >
               <RotateCcw size={16} /> Discard Changes
           </button>
           <button 
             onClick={handleSave} 
-            disabled={!isDirty}
-            className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 hover:opacity-90 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-900 font-bold py-2 px-4 rounded-lg transition-opacity"
+            disabled={!isDirty || isSaving}
+            className={`flex items-center justify-center gap-2 w-40 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300
+              ${isSaving ? 'bg-slate-600 text-slate-400 cursor-not-allowed' : ''}
+              ${saveSuccess ? 'bg-green-500' : 'bg-gradient-to-r from-amber-500 to-yellow-400'}
+              ${!isDirty && !isSaving && !saveSuccess ? 'disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed' : 'hover:opacity-90'}
+            `}
           >
-              <Save size={16} /> Save Changes
+            <AnimatePresence mode="popLayout" initial={false}>
+              {isSaving ? (
+                <motion.div key="saving" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="flex items-center gap-2">
+                  <Loader size={16} className="animate-spin" />
+                  <span>Saving...</span>
+                </motion.div>
+              ) : saveSuccess ? (
+                <motion.div key="success" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="flex items-center gap-2">
+                  <Check size={16} />
+                  <span>Saved!</span>
+                </motion.div>
+              ) : (
+                <motion.div key="default" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="flex items-center gap-2">
+                   <Save size={16} />
+                   <span>Save Changes</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
       </div>
+       {saveError && <div className="absolute bottom-20 right-4 bg-red-800 text-white text-sm p-3 rounded-lg shadow-lg">{saveError}</div>}
     </motion.div>
   );
 };

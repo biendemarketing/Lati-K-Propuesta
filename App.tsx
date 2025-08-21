@@ -11,23 +11,46 @@ import LoginModal from './components/Login';
 import AdminPanel from './components/AdminPanel';
 import { useAuth } from './contexts/AuthContext';
 import { useData } from './contexts/DataContext';
-import { Edit, LogIn, Loader } from 'lucide-react';
+import { Edit, LogIn, Loader, Plus } from 'lucide-react';
 
 const App = () => {
   const { isAuthenticated } = useAuth();
-  const { data, isLoading, startEditing } = useData();
+  const { data, isLoading, startEditing, createProposal } = useData();
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
-    // If the user is no longer authenticated, ensure the admin panel is closed.
     if (!isAuthenticated) {
       setIsAdminPanelOpen(false);
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (data?.hero?.clientName) {
+      document.title = `Lati K | Propuesta para ${data.hero.clientName}`;
+    } else {
+      document.title = 'Lati K Propuesta';
+    }
+  }, [data]);
+  
+  const handleCreateProposal = async () => {
+    const proposalName = prompt("Introduce el nombre para la nueva propuesta (ej: nombre del cliente):");
+    if (proposalName && proposalName.trim()) {
+      try {
+        const newSlug = await createProposal(proposalName.trim());
+        window.location.href = `/?proposal=${newSlug}`;
+      } catch (error) {
+        if (error instanceof Error) {
+          alert(`Error al crear la propuesta: ${error.message}`);
+        } else {
+          alert("Ocurrió un error desconocido al crear la propuesta.");
+        }
+      }
+    }
+  };
+
   const handleOpenAdminPanel = () => {
-    startEditing(); // Prepare the draft state for editing
+    startEditing(); 
     setIsAdminPanelOpen(true);
   };
 
@@ -42,9 +65,9 @@ const App = () => {
 
   if (!data) {
     return (
-      <div className="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center">
-         <p className="text-xl font-semibold text-red-400">Error: No se pudo cargar la propuesta.</p>
-         <p className="text-sm text-slate-400 mt-2">Por favor, revisa la consola para más detalles.</p>
+      <div className="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center text-center p-4">
+         <p className="text-2xl font-semibold text-red-400">Error: La propuesta no existe.</p>
+         <p className="text-md text-slate-400 mt-2">No se pudo encontrar la propuesta solicitada. Por favor, verifica el enlace.</p>
       </div>
     );
   }
@@ -86,17 +109,27 @@ const App = () => {
         </div>
       </div>
       <Footer />
-      <DownloadButton />
+      <DownloadButton isAuthenticated={isAuthenticated} />
 
       {isAuthenticated ? (
-        <div className="no-print fixed bottom-8 right-8 z-50">
+        <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col gap-4">
+           <motion.button
+            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-green-500/40"
+            onClick={handleCreateProposal}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            title="Crear Nueva Propuesta"
+          >
+              <Plus size={28} />
+          </motion.button>
           <motion.button
             className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40"
             onClick={handleOpenAdminPanel}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            title="Edit Page Content"
+            title="Editar Propuesta"
           >
               <Edit size={28} />
           </motion.button>

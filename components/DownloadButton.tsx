@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, FileText, RectangleHorizontal } from 'lucide-react';
 
-const DownloadButton = () => {
+const DownloadButton = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
@@ -12,21 +12,17 @@ const DownloadButton = () => {
     setShowInstructions(true);
 
     const styleId = 'print-orientation-style';
-    // Remove any existing style element
     document.getElementById(styleId)?.remove();
 
-    // Create and inject the new style element
     const style = document.createElement('style');
     style.id = styleId;
     style.innerHTML = `@page { size: A4 ${selectedOrientation}; margin: 0; }`;
     document.head.appendChild(style);
     
-    // Give the user a moment to read before the print dialog opens
     setTimeout(() => {
         window.print();
         setShowInstructions(false);
         setOptionsVisible(false);
-        // Clean up the style element after printing is likely done
         setTimeout(() => document.getElementById(styleId)?.remove(), 100);
     }, 500);
   };
@@ -36,24 +32,26 @@ const DownloadButton = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  return (
-    <>
-      <AnimatePresence>
-        {showInstructions && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="no-print fixed bottom-28 right-8 bg-slate-800 text-slate-100 p-4 rounded-lg shadow-2xl z-40 max-w-xs border border-slate-700"
-          >
-            <p className="text-sm font-semibold">Generating PDF ({orientation})...</p>
-            <p className="text-xs text-slate-300 mt-1">In the print window, please select <strong className="text-amber-400">"Save as PDF"</strong> as the destination.</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+  const baseBottomClass = isAuthenticated ? 'bottom-48' : 'bottom-28';
 
-      <div className="no-print fixed bottom-28 right-8 z-50 flex flex-col items-center gap-4">
+  return (
+    <div className={`no-print fixed ${baseBottomClass} right-8 z-50`}>
+      <div className="relative flex flex-col items-center gap-4">
+         <AnimatePresence>
+          {showInstructions && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="absolute bottom-full right-0 mb-4 bg-slate-800 text-slate-100 p-4 rounded-lg shadow-2xl z-40 w-64 border border-slate-700"
+            >
+              <p className="text-sm font-semibold">Generating PDF ({orientation})...</p>
+              <p className="text-xs text-slate-300 mt-1">In the print window, please select <strong className="text-amber-400">"Save as PDF"</strong> as the destination.</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
         <AnimatePresence>
           {optionsVisible && (
             <motion.div 
@@ -112,7 +110,7 @@ const DownloadButton = () => {
           </AnimatePresence>
         </motion.button>
       </div>
-    </>
+    </div>
   );
 };
 

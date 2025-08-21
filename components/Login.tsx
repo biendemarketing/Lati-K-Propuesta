@@ -8,8 +8,9 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, sendPasswordResetEmail } = useAuth();
 
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
@@ -25,6 +26,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setResetMessage('');
     const { success, error: loginError } = await login(email, password);
     setLoading(false);
     if (!success) {
@@ -38,6 +40,24 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
         localStorage.removeItem('rememberedPassword');
       }
       closeModal(); // Close modal on successful login
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setError('Por favor, introduce tu email para restablecer la contraseña.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    setResetMessage('');
+    const { success, error: resetError } = await sendPasswordResetEmail(email);
+    setLoading(false);
+
+    if (!success) {
+      setError(resetError || 'Ocurrió un error desconocido.');
+    } else {
+      setResetMessage('Si existe una cuenta, se ha enviado un enlace para restablecer la contraseña.');
     }
   };
 
@@ -92,7 +112,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
               disabled={loading}
             />
           </div>
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between text-sm">
             <div className="flex items-center">
               <input
                 id="remember-me"
@@ -102,12 +122,21 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-300">
+              <label htmlFor="remember-me" className="ml-2 block text-slate-300">
                 Recordar usuario
               </label>
             </div>
+            <button
+              type="button"
+              onClick={handlePasswordReset}
+              className="font-medium text-amber-400 hover:text-amber-300"
+              disabled={loading}
+            >
+              ¿Olvidaste la contraseña?
+            </button>
           </div>
-          {error && <p className="text-red-400 text-center mb-4">{error}</p>}
+          {error && <p className="text-red-400 text-center text-sm mb-4">{error}</p>}
+          {resetMessage && <p className="text-green-400 text-center text-sm mb-4">{resetMessage}</p>}
           <motion.button
             type="submit"
             className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-amber-500/30 disabled:opacity-50"
@@ -115,7 +144,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
             whileTap={{ scale: loading ? 1 : 0.95 }}
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Procesando...' : 'Login'}
           </motion.button>
         </form>
       </motion.div>

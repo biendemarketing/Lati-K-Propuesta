@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { CheckCircle, Camera, Users, Package, Truck, DollarSign } from 'lucide-react';
@@ -36,7 +35,11 @@ const ListItem = ({ icon, text }: ListItemProps) => (
 
 const IncludedServicesSection = () => {
   const { data } = useData();
-  const { included } = data;
+  const { included, footer, hero } = data;
+
+  const mailtoHref = `mailto:${footer.emailAddress}?subject=${encodeURIComponent(
+    `Interés en la propuesta para ${hero.clientName}`
+  )}`;
 
   return (
     <motion.section
@@ -80,14 +83,16 @@ const IncludedServicesSection = () => {
           </div>
           <p className="text-6xl font-black text-white my-4 print:text-5xl print:my-2">{included.cost}</p>
           <p className="text-slate-400">{included.costDescription}</p>
-           <motion.button
-            className="mt-8 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-amber-500/30 transition-all no-print"
-            whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(245, 158, 11, 0.5)" }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-          >
-            {included.ctaButtonText}
-          </motion.button>
+           <a href={mailtoHref} className="no-print inline-block mt-8">
+             <motion.button
+                className="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-amber-500/30 transition-all"
+                whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(245, 158, 11, 0.5)" }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                {included.ctaButtonText}
+              </motion.button>
+           </a>
         </motion.div>
       </div>
     </motion.section>
