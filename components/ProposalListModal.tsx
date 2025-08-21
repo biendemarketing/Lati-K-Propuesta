@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { X, Loader, Trash2, ExternalLink, Edit } from 'lucide-react';
@@ -21,7 +20,7 @@ const ProposalListModal = ({ closeModal }: { closeModal: () => void }) => {
     setError('');
     const { data, error } = await supabase
       .from('proposals')
-      .select('slug, created_at')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {

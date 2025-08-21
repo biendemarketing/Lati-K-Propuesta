@@ -38,7 +38,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     const { data: proposalData, error } = await supabase
       .from('proposals')
-      .select('data')
+      .select('*')
       .eq('slug', slug)
       .single();
 
@@ -155,7 +155,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const resetData = async () => {
     const { data: defaultData, error: fetchError } = await supabase
       .from('proposals')
-      .select('data')
+      .select('*')
       .eq('slug', 'default')
       .single();
     
@@ -189,7 +189,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(`Error checking for existing proposal: ${checkError.message}`);
     }
 
-    const { data: defaultProposal, error: fetchError } = await supabase.from('proposals').select('data').eq('slug', 'default').single();
+    const { data: defaultProposal, error: fetchError } = await supabase.from('proposals').select('*').eq('slug', 'default').single();
     if (fetchError || !defaultProposal) {
       throw new Error('Could not find the default proposal template to clone.');
     }

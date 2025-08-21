@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, FileText, RectangleHorizontal } from 'lucide-react';
@@ -33,7 +34,7 @@ const DownloadButton = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     visible: { opacity: 1, y: 0 },
   };
 
-  const baseBottomClass = isAuthenticated ? 'bottom-80' : 'bottom-28';
+  const baseBottomClass = isAuthenticated ? 'bottom-28 md:bottom-8' : 'bottom-28';
 
   return (
     <div className={`no-print fixed ${baseBottomClass} right-8 z-50`}>

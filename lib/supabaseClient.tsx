@@ -105,23 +105,24 @@ export interface Database {
           id: number
           created_at: string
           slug: string
-          data: ProposalData
-          updated_at: string | null
+          data: any
+          updated_at: string
         }
         Insert: {
           id?: number
           created_at?: string
           slug: string
           data: any
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
           id?: number
           created_at?: string
           slug?: string
           data?: any
-          updated_at?: string | null
+          updated_at?: string
         }
+        Relationships: []
       }
     }
     Views: {

@@ -333,15 +333,15 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
                         <li><strong>Guardar Cambios:</strong> Tus cambios no son permanentes hasta que presionas el botón <span className="font-bold text-[var(--color-primary)]">"Save Changes"</span>.</li>
                         <li><strong>Descartar Cambios:</strong> Si cometes un error, el botón <span className="font-bold text-slate-400">"Discard Changes"</span> restaurará el contenido a la última versión guardada.</li>
                         <li><strong>Plantillas y Temas:</strong> En "General Settings", puedes cambiar toda la estructura (Plantilla) y los colores (Tema) de la propuesta con un solo clic.</li>
-                        <li><strong>Subir Imágenes:</strong> Haz clic en cualquier área de imagen para subir un nuevo archivo desde tu dispositivo.</li>
+                        <li><strong>Subir Imágenes:</strong> Haz clic en "Cambiar imagen" para subir un archivo. Usa el botón de chispas ✨ para generar una imagen con IA.</li>
                     </ul>
                 </div>
                 <div>
                     <h4 className="font-semibold text-base text-white mb-2">Gestionar Propuestas</h4>
                     <ul className="list-disc list-inside space-y-1 pl-2">
-                        <li>Usa los botones flotantes en la esquina inferior derecha para:
+                        <li>Usa la barra de navegación para:
                             <ul className="list-['-_'] list-inside pl-4">
-                               <li><strong className="text-purple-400">Listar</strong> todas tus propuestas.</li>
+                               <li><strong className="text-purple-400">Gestionar</strong> todas tus propuestas.</li>
                                <li><strong className="text-green-400">Crear</strong> una nueva propuesta.</li>
                                <li><strong className="text-blue-400">Editar</strong> la propuesta actual (abre este panel).</li>
                             </ul>

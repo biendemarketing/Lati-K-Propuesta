@@ -16,7 +16,8 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.set": "^4.3.2",
     "lodash.get": "^4.4.2",
-    "@supabase/supabase-js": "^2.45.0"
+    "@supabase/supabase-js": "^2.45.0",
+    "@google/genai": "0.17.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

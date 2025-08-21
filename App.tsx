@@ -12,13 +12,15 @@ import DownloadButton from './components/DownloadButton';
 import LoginModal from './components/Login';
 import AdminPanel from './components/AdminPanel';
 import ProposalListModal from './components/ProposalListModal';
+import AdminNavbar from './components/AdminNavbar';
+import MobileBottomNavbar from './components/MobileBottomNavbar';
 import { useAuth } from './contexts/AuthContext';
 import { useData } from './contexts/DataContext';
-import { Edit, LogIn, Loader, Plus, List } from 'lucide-react';
+import { LogIn, Loader } from 'lucide-react';
 import LandingPage from './components/LandingPage';
 
 const App = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const { data, isLoading, startEditing, createProposal } = useData();
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -127,7 +129,22 @@ const App = () => {
   }
 
   return (
-    <div className="bg-slate-900 text-slate-100 min-h-screen antialiased overflow-x-hidden">
+    <div className={`bg-slate-900 text-slate-100 min-h-screen antialiased overflow-x-hidden ${isAuthenticated ? 'pt-16 pb-28 md:pb-0' : ''}`}>
+      {isAuthenticated && (
+        <>
+          <AdminNavbar 
+            onManageProposals={() => setIsProposalListModalOpen(true)}
+            onCreateProposal={handleCreateProposal}
+            onEditProposal={handleOpenAdminPanel}
+          />
+          <MobileBottomNavbar
+            onManageProposals={() => setIsProposalListModalOpen(true)}
+            onCreateProposal={handleCreateProposal}
+            onEditProposal={handleOpenAdminPanel}
+            onLogout={logout}
+          />
+        </>
+      )}
       <div className="relative isolate">
         <div 
           className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80 print-hide" 
@@ -201,40 +218,7 @@ const App = () => {
       <Footer />
       <DownloadButton isAuthenticated={isAuthenticated} />
 
-      {isAuthenticated ? (
-        <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col gap-4">
-           <motion.button
-            className="bg-gradient-to-r from-purple-500 to-violet-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/40"
-            onClick={() => setIsProposalListModalOpen(true)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            title="Gestionar Propuestas"
-          >
-              <List size={28} />
-          </motion.button>
-          <motion.button
-            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-green-500/40"
-            onClick={handleCreateProposal}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            title="Crear Nueva Propuesta"
-          >
-              <Plus size={28} />
-          </motion.button>
-          <motion.button
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40"
-            onClick={handleOpenAdminPanel}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            title="Editar Propuesta"
-          >
-              <Edit size={28} />
-          </motion.button>
-        </div>
-      ) : (
+      {!isAuthenticated && (
          <div className="no-print fixed bottom-8 right-8 z-50">
           <motion.button
             className="bg-slate-700 text-slate-100 w-16 h-16 rounded-full flex items-center justify-center shadow-lg"

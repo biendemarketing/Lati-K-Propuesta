@@ -1,13 +1,17 @@
 
+
 import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { useData } from '../contexts/DataContext';
-import { UploadCloud, Loader } from 'lucide-react';
+import { UploadCloud, Loader, Sparkles } from 'lucide-react';
+import ImageGeneratorModal from './ImageGeneratorModal';
 
 const ImageUploader = ({ path, currentImageUrl }: { path: string; currentImageUrl: string }) => {
   const { updateDraftData } = useData();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,34 +62,53 @@ const ImageUploader = ({ path, currentImageUrl }: { path: string; currentImageUr
   return (
     <div className="mb-2">
         <label className="block text-xs font-medium text-slate-400 mb-1">Image</label>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
             {currentImageUrl && <img src={currentImageUrl} alt="Current" className="w-16 h-16 object-cover rounded-md border-2 border-slate-600"/>}
-            <div 
-                className="relative w-full h-16 border-2 border-dashed border-slate-600 rounded-md flex flex-col justify-center items-center text-slate-400 hover:border-amber-500 hover:text-amber-400 cursor-pointer transition-colors"
-                onClick={() => fileInputRef.current?.click()}
-            >
-                {uploading ? (
-                    <>
-                        <Loader className="animate-spin" size={24} />
-                        <span className="text-xs mt-1">Subiendo...</span>
-                    </>
-                ) : (
-                    <>
-                        <UploadCloud size={24} />
-                        <span className="text-xs mt-1">Cambiar imagen</span>
-                    </>
-                )}
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleUpload}
-                    disabled={uploading}
-                    className="hidden"
-                />
+            <div className="flex-grow grid grid-cols-2 gap-2">
+              <button
+                  className="relative w-full h-16 border-2 border-dashed border-slate-600 rounded-md flex flex-col justify-center items-center text-slate-400 hover:border-slate-400 hover:text-slate-300 cursor-pointer transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+              >
+                  {uploading ? (
+                      <>
+                          <Loader className="animate-spin" size={24} />
+                          <span className="text-xs mt-1">Subiendo...</span>
+                      </>
+                  ) : (
+                      <>
+                          <UploadCloud size={24} />
+                          <span className="text-xs mt-1">Cambiar imagen</span>
+                      </>
+                  )}
+                  <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUpload}
+                      disabled={uploading}
+                      className="hidden"
+                  />
+              </button>
+              <button
+                  className="relative w-full h-16 border-2 border-dashed border-slate-600 rounded-md flex flex-col justify-center items-center text-slate-400 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer transition-all duration-300 group"
+                  onClick={() => setIsGeneratorOpen(true)}
+                  disabled={uploading}
+              >
+                  <Sparkles size={24} className="group-hover:scale-125 group-hover:animate-pulse transition-transform" />
+                  <span className="text-xs mt-1 font-semibold">Generar con IA</span>
+              </button>
             </div>
         </div>
         {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+        <AnimatePresence>
+            {isGeneratorOpen && (
+                <ImageGeneratorModal 
+                    path={path} 
+                    closeModal={() => setIsGeneratorOpen(false)}
+                />
+            )}
+        </AnimatePresence>
     </div>
   );
 };
