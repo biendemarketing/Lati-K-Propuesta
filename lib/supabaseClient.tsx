@@ -1,5 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
+// The 'Json' type is not exported from the root of '@supabase/supabase-js'.
+// This is a compatible definition for JSONB columns.
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
 // --- PROPOSAL DATA TYPES ---
 
 interface ThemeData {
@@ -95,7 +105,16 @@ export interface ProposalData {
   features: FeaturesSectionData;
   included: IncludedSectionData;
   footer: FooterData;
+  status: 'Draft' | 'Sent' | 'Accepted' | 'Changes Requested' | null;
 }
+
+export type ProposalComment = {
+  id: number;
+  created_at: string;
+  proposal_slug: string;
+  author_name: string;
+  comment_text: string;
+};
 
 export interface Database {
   public: {
@@ -124,12 +143,70 @@ export interface Database {
         }
         Relationships: []
       }
+      proposal_views: {
+        Row: {
+          id: number
+          created_at: string
+          proposal_slug: string
+        }
+        Insert: {
+          id?: number
+          created_at?: string
+          proposal_slug: string
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          proposal_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'proposal_views_proposal_slug_fkey'
+            columns: ['proposal_slug']
+            referencedRelation: 'proposals'
+            referencedColumns: ['slug']
+          }
+        ]
+      }
+      proposal_comments: {
+        Row: ProposalComment
+        Insert: {
+          id?: number
+          created_at?: string
+          proposal_slug: string
+          author_name: string
+          comment_text: string
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          proposal_slug?: string
+          author_name?: string
+          comment_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'proposal_comments_proposal_slug_fkey'
+            columns: ['proposal_slug']
+            referencedRelation: 'proposals'
+            referencedColumns: ['slug']
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+       get_proposals_with_view_counts: {
+        Args: {}
+        Returns: {
+          slug: string
+          created_at: string
+          view_count: number
+          last_viewed: string | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

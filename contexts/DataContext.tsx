@@ -3,7 +3,7 @@ import set from 'lodash.set';
 import cloneDeep from 'lodash.clonedeep';
 import get from 'lodash.get';
 import { supabase } from '../lib/supabaseClient';
-import type { ProposalData } from '../lib/supabaseClient';
+import type { ProposalData, ProposalComment } from '../lib/supabaseClient';
 
 // Types
 interface DataContextType {
@@ -20,6 +20,10 @@ interface DataContextType {
     resetData: () => Promise<void>;
     createProposal: (proposalName: string) => Promise<string>;
     deleteProposal: (slugToDelete: string) => Promise<void>;
+    logProposalView: () => Promise<void>;
+    addComment: (author: string, text: string) => Promise<void>;
+    updateProposalStatus: (status: ProposalData['status']) => Promise<void>;
+    fetchComments: () => Promise<ProposalComment[]>;
 }
 
 // Context
@@ -46,7 +50,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       console.error(`Error fetching data for slug "${slug}":`, error?.message);
       setData(null);
     } else {
-      setData(proposalData.data as ProposalData);
+      setData(proposalData.data);
     }
     setIsLoading(false);
   }, []);
@@ -155,7 +159,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const resetData = async () => {
     const { data: defaultData, error: fetchError } = await supabase
       .from('proposals')
-      .select('*')
+      .select('data')
       .eq('slug', 'default')
       .single();
     
@@ -172,7 +176,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(`Failed to reset data: ${updateError.message}`);
     }
     
-    setData(defaultData.data as ProposalData); // Update UI immediately
+    setData(defaultData.data); // Update UI immediately
   };
   
   const createProposal = async (proposalName: string): Promise<string> => {
@@ -189,15 +193,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(`Error checking for existing proposal: ${checkError.message}`);
     }
 
-    const { data: defaultProposal, error: fetchError } = await supabase.from('proposals').select('*').eq('slug', 'default').single();
+    const { data: defaultProposal, error: fetchError } = await supabase.from('proposals').select('data').eq('slug', 'default').single();
     if (fetchError || !defaultProposal) {
       throw new Error('Could not find the default proposal template to clone.');
     }
 
-    const newProposalData = cloneDeep(defaultProposal.data) as ProposalData;
+    const newProposalData = cloneDeep(defaultProposal.data);
     set(newProposalData, 'hero.clientName', proposalName.trim());
     
-    // Ensure new proposals have a theme object for backward compatibility
     if (!newProposalData.theme) {
       set(newProposalData, 'theme', {
         name: 'Lati Amber',
@@ -207,9 +210,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       });
     }
 
-    // Ensure new proposals have a template
     if (!newProposalData.template) {
       set(newProposalData, 'template', 'classic');
+    }
+
+    if (!newProposalData.status) {
+        set(newProposalData, 'status', 'Draft');
     }
 
     const { error: insertError } = await supabase.from('proposals').insert([{ slug, data: newProposalData }]);
@@ -234,6 +240,51 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // --- NEW FEATURES ---
+
+  const logProposalView = async () => {
+    if (!currentSlug) return;
+    const { error } = await supabase.from('proposal_views').insert({ proposal_slug: currentSlug });
+    if (error) {
+        if (error.message.includes("Could not find the table")) {
+             console.warn("Analytics feature disabled: 'proposal_views' table not found. Please run the setup SQL from 'ProposalListModal.tsx' to enable view tracking.");
+        } else {
+             console.error("Error logging proposal view:", error.message);
+        }
+    }
+  };
+
+  const addComment = async (author_name: string, comment_text: string) => {
+    if (!currentSlug) throw new Error("No proposal selected.");
+    const { error } = await supabase.from('proposal_comments').insert({ proposal_slug: currentSlug, author_name, comment_text });
+    if (error) throw new Error(`Failed to add comment: ${error.message}`);
+    await updateProposalStatus('Changes Requested');
+  };
+
+  const updateProposalStatus = async (status: ProposalData['status']) => {
+    if (!data) throw new Error("Original data not loaded.");
+    const newData = cloneDeep(data);
+    newData.status = status;
+    const { error } = await supabase.from('proposals').update({ data: newData }).eq('slug', currentSlug);
+    if (error) throw new Error(`Failed to update status: ${error.message}`);
+    setData(newData); // Update local state immediately
+  };
+
+  const fetchComments = async (): Promise<ProposalComment[]> => {
+    if (!currentSlug) return [];
+    const { data: comments, error } = await supabase.from('proposal_comments').select('*').eq('proposal_slug', currentSlug).order('created_at', { ascending: false });
+    if (error) {
+      if (error.message.includes("Could not find the table")) {
+          console.warn("Comments feature disabled: 'proposal_comments' table not found. Please run the setup SQL from 'AdminPanel.tsx' to enable comments.");
+      } else {
+          console.error("Error fetching comments:", error.message);
+      }
+      return [];
+    }
+    return comments || [];
+  };
+
+
   // --- VALUE & RETURN ---
   
   const value = {
@@ -249,7 +300,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     startEditing,
     resetData,
     createProposal,
-    deleteProposal
+    deleteProposal,
+    logProposalView,
+    addComment,
+    updateProposalStatus,
+    fetchComments,
   };
 
   return (

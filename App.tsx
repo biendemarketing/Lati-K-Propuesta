@@ -21,7 +21,7 @@ import LandingPage from './components/LandingPage';
 
 const App = () => {
   const { isAuthenticated, logout } = useAuth();
-  const { data, isLoading, startEditing, createProposal } = useData();
+  const { data, isLoading, startEditing, createProposal, logProposalView } = useData();
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isProposalListModalOpen, setIsProposalListModalOpen] = useState(false);
@@ -31,6 +31,12 @@ const App = () => {
     const params = new URLSearchParams(window.location.search);
     setIsLandingPage(params.get('page') === 'landing');
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated && data) {
+      logProposalView();
+    }
+  }, [data, isAuthenticated, logProposalView]);
 
   useEffect(() => {
     if (!isAuthenticated) {
