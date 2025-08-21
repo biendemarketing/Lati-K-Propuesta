@@ -42,7 +42,13 @@ const ImageUploader = ({ path, currentImageUrl }: { path: string; currentImageUr
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error uploading image:', error.message);
-        setError(error.message);
+        if (error.message.includes('security policy')) {
+            setError('Permission Denied: Check Storage RLS policies in Supabase for inserts.');
+        } else {
+            setError(error.message);
+        }
+      } else {
+        setError('An unknown error occurred during upload.');
       }
     } finally {
       setUploading(false);
