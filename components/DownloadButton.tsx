@@ -32,7 +32,7 @@ const DownloadButton = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     visible: { opacity: 1, y: 0 },
   };
 
-  const baseBottomClass = isAuthenticated ? 'bottom-48' : 'bottom-28';
+  const baseBottomClass = isAuthenticated ? 'bottom-80' : 'bottom-28';
 
   return (
     <div className={`no-print fixed ${baseBottomClass} right-8 z-50`}>

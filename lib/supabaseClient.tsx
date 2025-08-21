@@ -1,12 +1,92 @@
 import { createClient } from '@supabase/supabase-js';
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+// --- PROPOSAL DATA TYPES ---
+interface HeroData {
+  backgroundImageUrl: string;
+  subtitle: string;
+  title: string;
+  description: string;
+  clientLabel: string;
+  clientName: string;
+  activityLabel: string;
+  activityName: string;
+  themeLabel: string;
+  themeName: string;
+}
+
+interface ProposalCard {
+  title: string;
+  description: string;
+  imageUrl: string;
+}
+
+interface ProposalSectionData {
+  title: string;
+  cards: ProposalCard[];
+}
+
+interface ServiceCard {
+  enabled: boolean;
+  title:string;
+  icon: string;
+  items: string[];
+  imageUrl: string;
+}
+
+interface ServicesSectionData {
+  title: string;
+  cards: ServiceCard[];
+}
+
+interface FeatureItem {
+  reverse: boolean;
+  title: string;
+  icon: string;
+  description: string;
+  imageUrl: string;
+}
+
+interface FeaturesSectionData {
+  title: string;
+  items: FeatureItem[];
+}
+
+interface IncludedItem {
+  icon: string;
+  text: string;
+}
+
+interface IncludedSectionData {
+  title: string;
+  listTitle: string;
+  items: IncludedItem[];
+  costTitle: string;
+  cost: string;
+  costDescription: string;
+  ctaButtonText: string;
+}
+
+interface FooterData {
+  logoAlt: string;
+  phoneLabel: string;
+  phoneNumber: string;
+  emailLabel: string;
+  emailAddress: string;
+  addressLabel: string;
+  address: string;
+  copyright: string;
+}
+
+export interface ProposalData {
+  logoUrl: string;
+  hero: HeroData;
+  proposal: ProposalSectionData;
+  services: ServicesSectionData;
+  features: FeaturesSectionData;
+  included: IncludedSectionData;
+  footer: FooterData;
+}
+
 
 export interface Database {
   public: {
@@ -16,21 +96,21 @@ export interface Database {
           id: number
           created_at: string
           slug: string
-          data: Json
+          data: ProposalData
           updated_at: string | null
         }
         Insert: {
           id?: number
           created_at?: string
           slug: string
-          data: Json
+          data: ProposalData
           updated_at?: string | null
         }
         Update: {
           id?: number
           created_at?: string
           slug?: string
-          data?: Json
+          data?: ProposalData
           updated_at?: string | null
         }
       }

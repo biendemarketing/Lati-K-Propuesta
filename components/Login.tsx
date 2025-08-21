@@ -14,10 +14,8 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
 
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
-    const savedPassword = localStorage.getItem('rememberedPassword');
-    if (savedEmail && savedPassword) {
+    if (savedEmail) {
       setEmail(savedEmail);
-      setPassword(savedPassword);
       setRememberMe(true);
     }
   }, []);
@@ -34,10 +32,8 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
     } else {
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
-        localStorage.setItem('rememberedPassword', password);
       } else {
         localStorage.removeItem('rememberedEmail');
-        localStorage.removeItem('rememberedPassword');
       }
       closeModal(); // Close modal on successful login
     }
@@ -123,7 +119,7 @@ const LoginModal = ({ closeModal }: { closeModal: () => void }) => {
                 className="h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
               />
               <label htmlFor="remember-me" className="ml-2 block text-slate-300">
-                Recordar usuario
+                Recordar email
               </label>
             </div>
             <button

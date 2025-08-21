@@ -3,12 +3,12 @@ import set from 'lodash.set';
 import cloneDeep from 'lodash.clonedeep';
 import get from 'lodash.get';
 import { supabase } from '../lib/supabaseClient';
-import type { Json } from '../lib/supabaseClient';
+import type { ProposalData } from '../lib/supabaseClient';
 
 // Types
 interface DataContextType {
-    data: Json | null;
-    draftData: Json | null;
+    data: ProposalData | null;
+    draftData: ProposalData | null;
     isLoading: boolean;
     isDirty: boolean;
     updateDraftData: (path: string, value: any) => void;
@@ -19,6 +19,7 @@ interface DataContextType {
     startEditing: () => void;
     resetData: () => Promise<void>;
     createProposal: (proposalName: string) => Promise<string>;
+    deleteProposal: (slugToDelete: string) => Promise<void>;
 }
 
 // Context
@@ -26,8 +27,8 @@ const DataContext = createContext<DataContextType | null>(null);
 
 // Provider
 export const DataProvider = ({ children }: { children: ReactNode }) => {
-  const [data, setData] = useState<Json | null>(null);
-  const [draftData, setDraftData] = useState<Json | null>(null);
+  const [data, setData] = useState<ProposalData | null>(null);
+  const [draftData, setDraftData] = useState<ProposalData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentSlug, setCurrentSlug] = useState('default');
 
@@ -203,6 +204,21 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     return slug;
   };
 
+  const deleteProposal = async (slugToDelete: string) => {
+    if (slugToDelete === 'default') {
+      throw new Error("The default proposal cannot be deleted.");
+    }
+    const { error } = await supabase
+      .from('proposals')
+      .delete()
+      .eq('slug', slugToDelete);
+
+    if (error) {
+      console.error("Error deleting proposal:", error);
+      throw new Error(`Failed to delete proposal: ${error.message}`);
+    }
+  };
+
   // --- VALUE & RETURN ---
   
   const value = {
@@ -217,7 +233,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     discardChanges,
     startEditing,
     resetData,
-    createProposal
+    createProposal,
+    deleteProposal
   };
 
   return (

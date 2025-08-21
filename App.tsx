@@ -9,15 +9,17 @@ import Footer from './components/Footer';
 import DownloadButton from './components/DownloadButton';
 import LoginModal from './components/Login';
 import AdminPanel from './components/AdminPanel';
+import ProposalListModal from './components/ProposalListModal';
 import { useAuth } from './contexts/AuthContext';
 import { useData } from './contexts/DataContext';
-import { Edit, LogIn, Loader, Plus } from 'lucide-react';
+import { Edit, LogIn, Loader, Plus, List } from 'lucide-react';
 
 const App = () => {
   const { isAuthenticated } = useAuth();
   const { data, isLoading, startEditing, createProposal } = useData();
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isProposalListModalOpen, setIsProposalListModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -32,7 +34,24 @@ const App = () => {
       document.title = 'Lati K Propuesta';
     }
   }, [data]);
+
+  const handleOpenAdminPanel = () => {
+    startEditing(); 
+    setIsAdminPanelOpen(true);
+  };
   
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('edit') === 'true' && isAuthenticated) {
+      handleOpenAdminPanel();
+      // Clean up the URL to avoid re-triggering on refresh
+      params.delete('edit');
+      const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+      window.history.replaceState({}, '', newUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
   const handleCreateProposal = async () => {
     const proposalName = prompt("Introduce el nombre para la nueva propuesta (ej: nombre del cliente):");
     if (proposalName && proposalName.trim()) {
@@ -47,11 +66,6 @@ const App = () => {
         }
       }
     }
-  };
-
-  const handleOpenAdminPanel = () => {
-    startEditing(); 
-    setIsAdminPanelOpen(true);
   };
 
   if (isLoading) {
@@ -114,6 +128,16 @@ const App = () => {
       {isAuthenticated ? (
         <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col gap-4">
            <motion.button
+            className="bg-gradient-to-r from-purple-500 to-violet-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/40"
+            onClick={() => setIsProposalListModalOpen(true)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            title="Gestionar Propuestas"
+          >
+              <List size={28} />
+          </motion.button>
+          <motion.button
             className="bg-gradient-to-r from-green-500 to-emerald-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-green-500/40"
             onClick={handleCreateProposal}
             whileHover={{ scale: 1.1 }}
@@ -162,6 +186,12 @@ const App = () => {
           <AdminPanel 
             closePanel={() => setIsAdminPanelOpen(false)} 
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isProposalListModalOpen && (
+          <ProposalListModal closeModal={() => setIsProposalListModalOpen(false)} />
         )}
       </AnimatePresence>
     </div>
