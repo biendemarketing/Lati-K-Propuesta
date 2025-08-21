@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import set from 'lodash.set';
 import cloneDeep from 'lodash.clonedeep';
@@ -191,7 +192,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     
     const { data: updatedData, error } = await supabase
       .from('proposals')
-      .update({ data: draftData } as any)
+      .update({ data: draftData as any })
       .eq('slug', 'default')
       .select('data')
       .single();
@@ -245,7 +246,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     if(window.confirm("Are you sure you want to reset all content to the original defaults? This will overwrite the data in the database.")) {
       const { error } = await supabase
           .from('proposals')
-          .update({ data: initialData } as any)
+          .update({ data: initialData as any })
           .eq('slug', 'default');
       
       if (error) {

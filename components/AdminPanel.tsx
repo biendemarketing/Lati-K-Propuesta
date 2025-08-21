@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, ChevronDown, ChevronRight, LogOut, Plus, Trash2, Save, RotateCcw } from 'lucide-react';
@@ -6,6 +5,45 @@ import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { iconNames } from './IconMapper';
 import ImageUploader from './ImageUploader';
+import get from 'lodash.get';
+
+// --- Helper Components defined OUTSIDE AdminPanel ---
+
+// Section component for collapsible areas
+const Section = ({ title, id, children, isOpen, onToggle }: { title: string, id: string, children: React.ReactNode, isOpen: boolean, onToggle: () => void }) => (
+    <div className="border-b border-slate-700">
+      <button onClick={onToggle} className="w-full flex justify-between items-center p-4 hover:bg-slate-700/50">
+        <h3 className="font-semibold text-lg">{title}</h3>
+        {isOpen ? <ChevronDown /> : <ChevronRight />}
+      </button>
+      {isOpen && <div className="p-4 bg-slate-800/50">{children}</div>}
+    </div>
+);
+
+// Field renderer component for inputs and textareas
+const EditableField = ({ label, path, type = 'text', value, onChange }: { label: string, path: string, type?: 'text' | 'textarea', value: string, onChange: (path: string, value: string) => void }) => {
+    return (
+        <div className="mb-4">
+            <label className="block text-xs font-medium text-slate-400 mb-1">{label}</label>
+            {type === 'textarea' ? (
+                <textarea
+                    value={value}
+                    onChange={(e) => onChange(path, e.target.value)}
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    rows={3}
+                />
+            ) : (
+                <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => onChange(path, e.target.value)}
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+            )}
+        </div>
+    );
+};
+
 
 const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
   const { draftData, updateDraftData, resetData, addItem, removeItem, saveChanges, isDirty, discardChanges } = useData();
@@ -37,10 +75,6 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
     saveChanges();
     closePanel();
   };
-
-  const handleInputChange = (path: string, value: string | boolean | string[]) => {
-    updateDraftData(path, value);
-  };
   
   const handleSelectChange = (path: string, value: string) => {
     updateDraftData(path, value);
@@ -48,34 +82,6 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
-  
-  const renderField = (label: string, path: string, type: 'text' | 'textarea' = 'text') => {
-    const getNestedValue = (obj: any, pathStr: string): string => {
-        return pathStr.split('.').reduce((acc, part) => acc && acc[part], obj) || '';
-    }
-    const value = getNestedValue(draftData, path);
-
-    return (
-        <div className="mb-4">
-            <label className="block text-xs font-medium text-slate-400 mb-1">{label}</label>
-            {type === 'textarea' ? (
-                <textarea
-                    value={value}
-                    onChange={(e) => handleInputChange(path, e.target.value)}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    rows={3}
-                />
-            ) : (
-                <input
-                    type="text"
-                    value={value}
-                    onChange={(e) => handleInputChange(path, e.target.value)}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
-                />
-            )}
-        </div>
-    );
   };
 
   const renderIconSelector = (label: string, path: string, currentValue: string) => (
@@ -88,16 +94,6 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
       >
         {iconNames.map(name => <option key={name} value={name}>{name}</option>)}
       </select>
-    </div>
-  );
-
-  const Section = ({ title, id, children }: { title: string, id: string, children: React.ReactNode }) => (
-    <div className="border-b border-slate-700">
-      <button onClick={() => toggleSection(id)} className="w-full flex justify-between items-center p-4 hover:bg-slate-700/50">
-        <h3 className="font-semibold text-lg">{title}</h3>
-        {openSections[id] ? <ChevronDown /> : <ChevronRight />}
-      </button>
-      {openSections[id] && <div className="p-4 bg-slate-800/50">{children}</div>}
     </div>
   );
 
@@ -129,100 +125,100 @@ const AdminPanel = ({ closePanel }: { closePanel: () => void }) => {
       </div>
       <div className="overflow-y-auto flex-grow">
         
-        <Section title="General Settings" id="general">
+        <Section title="General Settings" id="general" isOpen={!!openSections['general']} onToggle={() => toggleSection('general')}>
           <ImageUploader path="logoUrl" currentImageUrl={draftData.logoUrl} />
         </Section>
         
-        <Section title="Hero Section" id="hero">
+        <Section title="Hero Section" id="hero" isOpen={!!openSections['hero']} onToggle={() => toggleSection('hero')}>
           <ImageUploader path="hero.backgroundImageUrl" currentImageUrl={draftData.hero.backgroundImageUrl} />
-          {renderField('Subtitle', 'hero.subtitle')}
-          {renderField('Title', 'hero.title')}
-          {renderField('Description', 'hero.description', 'textarea')}
+          <EditableField label="Subtitle" path="hero.subtitle" value={get(draftData, 'hero.subtitle')} onChange={updateDraftData} />
+          <EditableField label="Title" path="hero.title" value={get(draftData, 'hero.title')} onChange={updateDraftData} />
+          <EditableField label="Description" path="hero.description" type="textarea" value={get(draftData, 'hero.description')} onChange={updateDraftData} />
           <div className="grid grid-cols-2 gap-4">
-            {renderField('Client Label', 'hero.clientLabel')}
-            {renderField('Client Name', 'hero.clientName')}
-            {renderField('Activity Label', 'hero.activityLabel')}
-            {renderField('Activity Name', 'hero.activityName')}
-            {renderField('Theme Label', 'hero.themeLabel')}
-            {renderField('Theme Name', 'hero.themeName')}
+            <EditableField label="Client Label" path="hero.clientLabel" value={get(draftData, 'hero.clientLabel')} onChange={updateDraftData} />
+            <EditableField label="Client Name" path="hero.clientName" value={get(draftData, 'hero.clientName')} onChange={updateDraftData} />
+            <EditableField label="Activity Label" path="hero.activityLabel" value={get(draftData, 'hero.activityLabel')} onChange={updateDraftData} />
+            <EditableField label="Activity Name" path="hero.activityName" value={get(draftData, 'hero.activityName')} onChange={updateDraftData} />
+            <EditableField label="Theme Label" path="hero.themeLabel" value={get(draftData, 'hero.themeLabel')} onChange={updateDraftData} />
+            <EditableField label="Theme Name" path="hero.themeName" value={get(draftData, 'hero.themeName')} onChange={updateDraftData} />
           </div>
         </Section>
 
-        <Section title="Proposal Section" id="proposal">
-           {renderField('Section Title', 'proposal.title')}
+        <Section title="Proposal Section" id="proposal" isOpen={!!openSections['proposal']} onToggle={() => toggleSection('proposal')}>
+           <EditableField label="Section Title" path="proposal.title" value={get(draftData, 'proposal.title')} onChange={updateDraftData} />
            {draftData.proposal.cards.map((card, index) => (
-             <div key={index} className="p-3 my-2 border border-slate-600 rounded-md relative">
+             <div key={`proposal-card-${index}`} className="p-3 my-2 border border-slate-600 rounded-md relative">
                 <h4 className="font-semibold mb-2">Card {index+1}</h4>
                  <button onClick={() => removeItem('proposal.cards', index)} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-red-400"><Trash2 size={16}/></button>
-                <input type="text" value={card.title} onChange={(e) => handleInputChange(`proposal.cards.${index}.title`, e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm mb-2" placeholder="Card Title" />
-                <textarea value={card.description} onChange={(e) => handleInputChange(`proposal.cards.${index}.description`, e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm mb-2" placeholder="Card Description" />
+                <EditableField label="Card Title" path={`proposal.cards.${index}.title`} value={card.title} onChange={updateDraftData} />
+                <EditableField label="Card Description" path={`proposal.cards.${index}.description`} type="textarea" value={card.description} onChange={updateDraftData} />
                 <ImageUploader path={`proposal.cards.${index}.imageUrl`} currentImageUrl={card.imageUrl} />
              </div>
            ))}
            <button onClick={() => addItem('proposal.cards')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Proposal Card</button>
         </Section>
         
-        <Section title="Services Section" id="services">
-            {renderField('Section Title', 'services.title')}
+        <Section title="Services Section" id="services" isOpen={!!openSections['services']} onToggle={() => toggleSection('services')}>
+            <EditableField label="Section Title" path="services.title" value={get(draftData, 'services.title')} onChange={updateDraftData} />
             {draftData.services.cards.map((card, index) => (
-             <div key={index} className="p-3 my-2 border border-slate-600 rounded-md relative">
+             <div key={`service-card-${index}`} className="p-3 my-2 border border-slate-600 rounded-md relative">
                 <div className="flex justify-between items-center mb-2">
                     <h4 className="font-semibold">Service Card {index+1}</h4>
                     <button onClick={() => removeItem('services.cards', index)} className="p-1 text-slate-400 hover:text-red-400"><Trash2 size={16}/></button>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                    <input type="checkbox" id={`service_enabled_${index}`} checked={card.enabled} onChange={(e) => handleInputChange(`services.cards.${index}.enabled`, e.target.checked)} />
+                    <input type="checkbox" id={`service_enabled_${index}`} checked={card.enabled} onChange={(e) => updateDraftData(`services.cards.${index}.enabled`, e.target.checked)} />
                     <label htmlFor={`service_enabled_${index}`} className="text-sm font-medium">Enabled</label>
                 </div>
-                <input type="text" value={card.title} onChange={(e) => handleInputChange(`services.cards.${index}.title`, e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm mb-2" placeholder="Service Title" />
+                <EditableField label="Service Title" path={`services.cards.${index}.title`} value={card.title} onChange={updateDraftData} />
                 {renderIconSelector('Icon', `services.cards.${index}.icon`, card.icon)}
-                <textarea value={card.items.join('\n')} onChange={(e) => handleInputChange(`services.cards.${index}.items`, e.target.value.split('\n'))} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm mb-2" placeholder="List items (one per line)" />
+                <EditableField label="List items (one per line)" path={`services.cards.${index}.items`} type="textarea" value={Array.isArray(card.items) ? card.items.join('\n') : ''} onChange={(path, value) => updateDraftData(path, value.split('\n'))} />
                 <ImageUploader path={`services.cards.${index}.imageUrl`} currentImageUrl={card.imageUrl} />
              </div>
            ))}
            <button onClick={() => addItem('services.cards')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Service Card</button>
         </Section>
 
-         <Section title="Features Section" id="features">
-            {renderField('Section Title', 'features.title')}
+         <Section title="Features Section" id="features" isOpen={!!openSections['features']} onToggle={() => toggleSection('features')}>
+            <EditableField label="Section Title" path="features.title" value={get(draftData, 'features.title')} onChange={updateDraftData} />
             {draftData.features.items.map((item, index) => (
-             <div key={index} className="p-3 my-2 border border-slate-600 rounded-md relative">
+             <div key={`feature-item-${index}`} className="p-3 my-2 border border-slate-600 rounded-md relative">
                  <h4 className="font-semibold mb-2">Feature {index+1}</h4>
                  <button onClick={() => removeItem('features.items', index)} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-red-400"><Trash2 size={16}/></button>
                  <div className="flex items-center gap-2 mb-2">
-                    <input type="checkbox" id={`feature_reverse_${index}`} checked={item.reverse} onChange={(e) => handleInputChange(`features.items.${index}.reverse`, e.target.checked)} />
+                    <input type="checkbox" id={`feature_reverse_${index}`} checked={item.reverse} onChange={(e) => updateDraftData(`features.items.${index}.reverse`, e.target.checked)} />
                     <label htmlFor={`feature_reverse_${index}`} className="text-sm font-medium">Reverse Layout</label>
                 </div>
-                <input type="text" value={item.title} onChange={(e) => handleInputChange(`features.items.${index}.title`, e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm mb-2" placeholder="Feature Title" />
+                <EditableField label="Feature Title" path={`features.items.${index}.title`} value={item.title} onChange={updateDraftData} />
                 {renderIconSelector('Icon', `features.items.${index}.icon`, item.icon)}
-                <textarea value={item.description} onChange={(e) => handleInputChange(`features.items.${index}.description`, e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm mb-2" placeholder="Feature Description" />
+                <EditableField label="Feature Description" path={`features.items.${index}.description`} type="textarea" value={item.description} onChange={updateDraftData} />
                 <ImageUploader path={`features.items.${index}.imageUrl`} currentImageUrl={item.imageUrl} />
              </div>
            ))}
            <button onClick={() => addItem('features.items')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Feature</button>
         </Section>
 
-        <Section title="Included Section" id="included">
-            {renderField('Section Title', 'included.title')}
+        <Section title="Included Section" id="included" isOpen={!!openSections['included']} onToggle={() => toggleSection('included')}>
+            <EditableField label="Section Title" path="included.title" value={get(draftData, 'included.title')} onChange={updateDraftData} />
             <hr className="my-4 border-slate-600"/>
-            {renderField('List Title', 'included.listTitle')}
+            <EditableField label="List Title" path="included.listTitle" value={get(draftData, 'included.listTitle')} onChange={updateDraftData} />
              {draftData.included.items.map((item, index) => (
-             <div key={index} className="p-3 my-2 border border-slate-600 rounded-md relative">
+             <div key={`included-item-${index}`} className="p-3 my-2 border border-slate-600 rounded-md relative">
                  <h4 className="font-semibold mb-2">Item {index+1}</h4>
                  <button onClick={() => removeItem('included.items', index)} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-red-400"><Trash2 size={16}/></button>
                 {renderIconSelector('Icon', `included.items.${index}.icon`, item.icon)}
-                <input type="text" value={item.text} onChange={(e) => handleInputChange(`included.items.${index}.text`, e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm mb-2" placeholder="Item text" />
+                <EditableField label="Item text" path={`included.items.${index}.text`} value={item.text} onChange={updateDraftData} />
              </div>
            ))}
            <button onClick={() => addItem('included.items')} className="mt-2 text-sm flex items-center gap-2 text-amber-400 font-semibold"><Plus size={16}/> Add Included Item</button>
             <hr className="my-4 border-slate-600"/>
-            {renderField('Cost Title', 'included.costTitle')}
-            {renderField('Cost Amount', 'included.cost')}
-            {renderField('Cost Description', 'included.costDescription')}
-            {renderField('Button Text', 'included.ctaButtonText')}
+            <EditableField label="Cost Title" path="included.costTitle" value={get(draftData, 'included.costTitle')} onChange={updateDraftData} />
+            <EditableField label="Cost Amount" path="included.cost" value={get(draftData, 'included.cost')} onChange={updateDraftData} />
+            <EditableField label="Cost Description" path="included.costDescription" value={get(draftData, 'included.costDescription')} onChange={updateDraftData} />
+            <EditableField label="Button Text" path="included.ctaButtonText" value={get(draftData, 'included.ctaButtonText')} onChange={updateDraftData} />
         </Section>
 
-        <Section title="Danger Zone" id="danger">
+        <Section title="Danger Zone" id="danger" isOpen={!!openSections['danger']} onToggle={() => toggleSection('danger')}>
             <div className="flex justify-between items-center">
                 <div>
                     <h4 className="font-semibold">Reset Data</h4>
