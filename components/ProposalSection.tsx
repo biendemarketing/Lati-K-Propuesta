@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
+import { useData } from '../contexts/DataContext';
 
 type SectionWrapperProps = {
   children: React.ReactNode;
@@ -58,20 +59,21 @@ const Card = ({ title, description, imageUrl }: CardProps) => (
 );
 
 const ProposalSection = () => {
+  const { data } = useData();
+  const { proposal } = data;
+
   return (
     <SectionWrapper>
-      <Title>Propuesta de Ambientación</Title>
+      <Title>{proposal.title}</Title>
       <div className="space-y-12 print:space-y-0 print:flex print:gap-8">
-        <Card
-          title="Decoración de Entrada: Pista de Carreras"
-          description="Montaje de un camino simulando una pista de carreras, con columnas de cuadros blancos y negros. Una simulación de pista negra con líneas blancas, gomas y banderines para que los invitados sientan que están entrando a una carrera de Fórmula 1."
-          imageUrl="https://i.pinimg.com/1200x/00/53/92/005392f76e2c520aa9244466cab10066.jpg"
-        />
-        <Card
-          title="Decoración del Escenario: Meta de Carrera"
-          description="Escenografía para el fondo del escenario con tema de carreras. Recrearemos una meta con un letrero de 'FINISH' y otros elementos como semáforos, señalizaciones, banderines y gomas de colores para simular la llegada a la meta."
-          imageUrl="https://i.pinimg.com/1200x/d8/2c/0d/d82c0d5fd203742288c4d02d5eca6dbe.jpg"
-        />
+        {proposal.cards.map((card, index) => (
+          <Card
+            key={index}
+            title={card.title}
+            description={card.description}
+            imageUrl={card.imageUrl}
+          />
+        ))}
       </div>
     </SectionWrapper>
   );

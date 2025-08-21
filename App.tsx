@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Hero from './components/Hero';
 import ProposalSection from './components/ProposalSection';
 import ServicesSection from './components/ServicesSection';
@@ -8,8 +7,41 @@ import FeaturesSection from './components/FeaturesSection';
 import IncludedServicesSection from './components/IncludedServicesSection';
 import Footer from './components/Footer';
 import DownloadButton from './components/DownloadButton';
+import LoginModal from './components/Login';
+import AdminPanel from './components/AdminPanel';
+import { useAuth } from './contexts/AuthContext';
+import { useData } from './contexts/DataContext';
+import { Edit, LogIn, Loader } from 'lucide-react';
 
 const App = () => {
+  const { isAuthenticated } = useAuth();
+  const { data, isLoading, startEditing } = useData();
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const handleOpenAdminPanel = () => {
+    startEditing(); // Prepare the draft state for editing
+    setIsAdminPanelOpen(true);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center">
+        <Loader className="animate-spin text-amber-500" size={48} />
+        <p className="text-xl font-semibold mt-4">Cargando Propuesta...</p>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center">
+         <p className="text-xl font-semibold text-red-400">Error: No se pudo cargar la propuesta.</p>
+         <p className="text-sm text-slate-400 mt-2">Por favor, revisa la consola para más detalles.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-slate-900 text-slate-100 min-h-screen antialiased overflow-x-hidden">
       <div className="relative isolate">
@@ -48,6 +80,50 @@ const App = () => {
       </div>
       <Footer />
       <DownloadButton />
+
+      {isAuthenticated ? (
+        <div className="no-print fixed bottom-28 right-8 z-50">
+          <motion.button
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40"
+            onClick={handleOpenAdminPanel}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            title="Edit Page Content"
+          >
+              <Edit size={28} />
+          </motion.button>
+        </div>
+      ) : (
+         <div className="no-print fixed bottom-28 right-8 z-50">
+          <motion.button
+            className="bg-slate-700 text-slate-100 w-16 h-16 rounded-full flex items-center justify-center shadow-lg"
+            onClick={() => setIsLoginModalOpen(true)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            title="Admin Login"
+          >
+              <LogIn size={28} />
+          </motion.button>
+        </div>
+      )}
+
+      <AnimatePresence>
+        {isLoginModalOpen && (
+          <LoginModal 
+            closeModal={() => setIsLoginModalOpen(false)} 
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isAdminPanelOpen && (
+          <AdminPanel 
+            closePanel={() => setIsAdminPanelOpen(false)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

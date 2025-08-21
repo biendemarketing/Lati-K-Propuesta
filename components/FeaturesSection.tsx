@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Camera, Video, Sparkles, Tent } from 'lucide-react';
+import { useData } from '../contexts/DataContext';
+import IconMapper from './IconMapper';
 
 const sectionVariants: Variants = {
   offscreen: {},
@@ -66,6 +67,9 @@ const Feature = ({ icon, title, description, imageUrl, reverse = false }: Featur
 );
 
 const FeaturesSection = () => {
+  const { data } = useData();
+  const { features } = data;
+
   return (
     <motion.section
       className="py-24 space-y-20 print:space-y-0 print-slide"
@@ -80,31 +84,20 @@ const FeaturesSection = () => {
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
-        Experiencias Adicionales
+        {features.title}
       </motion.h2>
       
       <div className="flex flex-col space-y-20 print:space-y-4 print:w-full">
-        <Feature
-          icon={<Tent size={32} />}
-          title="Área de Fotos Interactiva"
-          description="Una escenografía acorde al tema del evento para que los invitados se tomen fotos. Estará colocada en los laterales del escenario central, siendo completamente interactiva."
-          imageUrl="https://i.pinimg.com/736x/a5/81/54/a58154ebb4f370385ef39c2d6f0ccd62.jpg"
-        />
-        
-        <Feature
-          icon={<Video size={32} />}
-          title="Plataforma Videobook 30"
-          description="Se montará un Videobook 360 en la entrada para que los invitados puedan grabar videos al llegar y luego seguir la 'carrera' hasta la meta, creando recuerdos dinámicos desde el primer momento."
-          imageUrl="https://i.pinimg.com/1200x/87/f9/ce/87f9ce883d23b69fbf8434b471cbdcc6.jpg"
-          reverse={true}
-        />
-
-        <Feature
-          icon={<Sparkles size={32} />}
-          title="Letras Gigantes 'PROMO 2025'"
-          description="Para destacar el año de la promoción, colocaremos letras iluminadas con el texto 'PROMO 2025', dejando plasmado este año en los recuerdos de la promoción de una forma espectacular."
-          imageUrl="https://m.media-amazon.com/images/I/71CrT-1QdEL._UF894,1000_QL80_.jpg"
-        />
+        {features.items.map((feature, index) => (
+          <Feature
+            key={index}
+            icon={<IconMapper iconName={feature.icon} />}
+            title={feature.title}
+            description={feature.description}
+            imageUrl={feature.imageUrl}
+            reverse={feature.reverse}
+          />
+        ))}
       </div>
 
     </motion.section>

@@ -2,6 +2,8 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { CheckCircle, Camera, Users, Package, Truck, DollarSign } from 'lucide-react';
+import { useData } from '../contexts/DataContext';
+import IconMapper from './IconMapper';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -33,6 +35,9 @@ const ListItem = ({ icon, text }: ListItemProps) => (
 );
 
 const IncludedServicesSection = () => {
+  const { data } = useData();
+  const { included } = data;
+
   return (
     <motion.section
       className="py-24 print-slide"
@@ -45,18 +50,20 @@ const IncludedServicesSection = () => {
         className="text-4xl md:text-5xl font-bold text-center mb-12 text-amber-400"
         variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } } }}
       >
-        Todo Incluido
+        {included.title}
       </motion.h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center print:grid-cols-2 print:gap-8">
         <div>
-          <h3 className="text-2xl font-bold mb-6 print:mb-4">Otros Servicios Incluidos</h3>
+          <h3 className="text-2xl font-bold mb-6 print:mb-4">{included.listTitle}</h3>
           <ul className="space-y-4 print:space-y-2">
-            <ListItem icon={<Camera size={24} />} text="Fotógrafo para cubrir el evento" />
-            <ListItem icon={<CheckCircle size={24} />} text="Fotos generales del evento" />
-            <ListItem icon={<Package size={24} />} text="Videos para redes sociales" />
-            <ListItem icon={<Truck size={24} />} text="Montaje, desmontaje y transporte de equipos" />
-            <ListItem icon={<Users size={24} />} text="Equipo de staff para acompañar en el evento" />
+            {included.items.map((item, index) => (
+              <ListItem 
+                key={index} 
+                icon={<IconMapper iconName={item.icon} />} 
+                text={item.text} 
+              />
+            ))}
           </ul>
         </div>
         
@@ -69,17 +76,17 @@ const IncludedServicesSection = () => {
         >
           <div className="flex justify-center items-center mb-4 print:mb-2">
             <DollarSign className="text-amber-400" size={40} />
-            <h3 className="text-2xl font-bold ml-2">Costo del Lanzamiento</h3>
+            <h3 className="text-2xl font-bold ml-2">{included.costTitle}</h3>
           </div>
-          <p className="text-6xl font-black text-white my-4 print:text-5xl print:my-2">RD $160,000</p>
-          <p className="text-slate-400">Un paquete completo para un evento inolvidable.</p>
+          <p className="text-6xl font-black text-white my-4 print:text-5xl print:my-2">{included.cost}</p>
+          <p className="text-slate-400">{included.costDescription}</p>
            <motion.button
             className="mt-8 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg shadow-amber-500/30 transition-all no-print"
             whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(245, 158, 11, 0.5)" }}
             whileTap={{ scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
           >
-            Contactar Ahora
+            {included.ctaButtonText}
           </motion.button>
         </motion.div>
       </div>

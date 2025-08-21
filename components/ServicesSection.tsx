@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Music, Speaker, Clapperboard, Sparkles, UserCheck, Construction } from 'lucide-react';
+import { useData } from '../contexts/DataContext';
+import IconMapper from './IconMapper';
 
 const sectionVariants: Variants = {
   offscreen: { opacity: 0 },
@@ -58,32 +59,10 @@ const IconCard = ({ icon, title, items, imageUrl }: IconCardProps) => (
 );
 
 const ServicesSection = () => {
-  const services = [
-    {
-      icon: <Music size={32} />,
-      title: "Sonido Profesional",
-      items: ["DJ Profesional", "Bocinas Amplificadas", "Bajos Amplificados", "Consola Mixer", "Micrófonos Inalámbricos"],
-      imageUrl: "https://i.pinimg.com/1200x/03/a5/c2/03a5c2680c42b8749977c81f0530f3dd.jpg",
-    },
-    {
-      icon: <Sparkles size={32} />,
-      title: "Efectos Especiales",
-      items: ["Máquina de Confeti", "Máquina de Humo", "Pirotecnia Fría"],
-      imageUrl: "https://i.pinimg.com/736x/0b/60/52/0b60522f443304a8c79fe2c141aa30c1.jpg",
-    },
-    {
-      icon: <UserCheck size={32} />,
-      title: "Personal Técnico",
-      items: ["Técnico para Sonido", "Técnico para Efectos"],
-      imageUrl: "https://i.pinimg.com/1200x/3f/ff/e1/3fffe126f54f0ed032a68095cec1d1ba.jpg",
-    },
-    {
-      icon: <Construction size={32} />,
-      title: "Estructuras Truss",
-      items: ["Estructura para Escenario", "Estructura para Área de Fotos"],
-      imageUrl: "https://i.pinimg.com/1200x/07/c9/61/07c961d3018391638bc2581fdb689402.jpg",
-    },
-  ];
+  const { data } = useData();
+  const { services } = data;
+
+  const enabledServices = services.cards.filter(service => service.enabled);
 
   return (
     <motion.section 
@@ -97,11 +76,17 @@ const ServicesSection = () => {
         className="text-4xl md:text-5xl font-bold text-center mb-12 text-amber-400"
         variants={itemVariants}
       >
-        Producción Técnica y Efectos
+        {services.title}
       </motion.h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 print:grid-cols-4 print:gap-4">
-        {services.map((service, index) => (
-          <IconCard key={index} icon={service.icon} title={service.title} items={service.items} imageUrl={service.imageUrl} />
+        {enabledServices.map((service, index) => (
+          <IconCard 
+            key={index} 
+            icon={<IconMapper iconName={service.icon} />} 
+            title={service.title} 
+            items={service.items} 
+            imageUrl={service.imageUrl} 
+          />
         ))}
       </div>
     </motion.section>
